@@ -10,16 +10,17 @@ $ npm install
 
 ### start
 
+### development
 
 `
-$ gulp
+$ npm run dev
 `
 
-## Usage
+### production
 
+`
+$ npm run build
+`
 
-## Demo
-
-* [demo01](demo/demo01.html)
 
 ## Licence
