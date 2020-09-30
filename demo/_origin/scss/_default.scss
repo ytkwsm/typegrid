@@ -1,0 +1,109 @@
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    vertical-align: baseline;
+}
+
+/* Begin html5 element --> block */
+article, aside, details, dialog, figcaption, figure,
+footer, header, hgroup, command, menu, nav, section, time, main {
+    display: block;
+}
+
+/* End html5 element --> block */
+html {
+    font-family: 'Open Sans', Univers, "Helvetica Neue", Helvetica, Verdana, Roboto, "Droid Sans", "游ゴシック", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", 'Meiryo UI', "メイリオ", Meiryo, sans-serif;
+    font-size: 100%;
+    line-height: 1;
+    color: #333333;
+    // -webkit-font-smoothing: antialiased;
+    // -moz-osx-font-smoothing: grayscale;
+    -moz-font-feature-settings: "liga", "kern";
+    -webkit-font-feature-settings: "liga", "kern";
+}
+
+body {
+    -webkit-text-size-adjust: none;
+}
+
+h1, h2, h3, h4, h5,
+p, span, strong, em,
+ul, li, dl, dt, dd,
+table, a {
+    font-size: 1em;
+}
+
+nav, ol, ul {
+    margin: 0 0 0 0;
+    line-height: 1;
+    list-style: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+caption, th {
+    text-align: left;
+}
+
+fieldset, img {
+    border: 0;
+    vertical-align: bottom;
+}
+
+address, caption, cite, code, dfn, em, strong, th, var {
+    font-style: normal;
+    font-weight: normal;
+}
+
+del {
+    text-decoration: line-through;
+}
+
+abbr, acronym {
+    border: 0;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+a {
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #cccccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+input, select {
+    vertical-align: middle;
+}

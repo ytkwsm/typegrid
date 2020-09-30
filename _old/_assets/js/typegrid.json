@@ -1,0 +1,64 @@
+{
+    "config":[
+        {
+             "mediaName"            : "mobile"
+            ,"mediaMatchSize"       : ""
+            ,"mediaType"            : "all"
+            ,"writingMode"          : "horizontal-tb"
+            ,"charSizePx"           : 16
+            ,"charSizeRem"          : 1
+            ,"layoutGridAlign"      : "left"
+            ,"gridBaseThickMultiple": 4
+            ,"gridColmunNum"        : 4
+            ,"gridColmunWidth"      : 2
+            ,"gridColmunMargin"     : 1
+            ,"gridRowWidth"         : 4
+            ,"gridRowHeight"        : 4
+            ,"gridRowMargin"        : 1
+            ,"gridUnitNum"          : 4
+            ,"gridUnitWidth"        : 4
+            ,"gridUnitHeight"       : 4
+            ,"gridUnitMargin"       : 1
+        }
+        ,{
+             "mediaName"            : "tablet"
+            ,"mediaMatchSize"       : ""
+            ,"mediaType"            : "all"
+            ,"writingMode"          : "horizontal-tb"
+            ,"charSizePx"           : 16
+            ,"charSizeRem"          : 1
+            ,"layoutGridAlign"      : "left"
+            ,"gridBaseThickMultiple": 4
+            ,"gridColmunNum"        : 4
+            ,"gridColmunWidth"      : 2
+            ,"gridColmunMargin"     : 1
+            ,"gridRowWidth"         : 4
+            ,"gridRowHeight"        : 4
+            ,"gridRowMargin"        : 1
+            ,"gridUnitNum"          : 4
+            ,"gridUnitWidth"        : 4
+            ,"gridUnitHeight"       : 4
+            ,"gridUnitMargin"       : 1
+        }
+        ,{
+             "mediaName"            : "desktop"
+            ,"mediaMatchSize"       : ""
+            ,"mediaType"            : "all"
+            ,"writingMode"          : "horizontal-tb"
+            ,"charSizePx"           : 16
+            ,"charSizeRem"          : 1
+            ,"layoutGridAlign"      : "left"
+            ,"gridBaseThickMultiple": 4
+            ,"gridColmunNum"        : 4
+            ,"gridColmunWidth"      : 2
+            ,"gridColmunMargin"     : 1
+            ,"gridRowWidth"         : 4
+            ,"gridRowHeight"        : 4
+            ,"gridRowMargin"        : 1
+            ,"gridUnitNum"          : 4
+            ,"gridUnitWidth"        : 4
+            ,"gridUnitHeight"       : 4
+            ,"gridUnitMargin"       : 1
+        }
+    ]
+}

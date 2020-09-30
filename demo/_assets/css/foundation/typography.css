@@ -1,0 +1,6 @@
+@charset "UTF-8";
+html {
+  font-family: 'Open Sans', Univers, "Helvetica Neue", Helvetica, Verdana, Roboto, "Droid Sans", "游ゴシック", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", 'Meiryo UI', "メイリオ", Meiryo, sans-serif;
+  font-size: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }

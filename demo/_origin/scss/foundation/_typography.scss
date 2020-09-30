@@ -1,0 +1,22 @@
+html {
+    font-family: 'Open Sans', Univers, "Helvetica Neue", Helvetica, Verdana, Roboto, "Droid Sans", "游ゴシック", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", 'Meiryo UI', "メイリオ", Meiryo, sans-serif;
+    font-size: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+
+    $map: (
+        $mqPhoneWidthMinPx: $mqPhoneFsPx
+        ,$mqTabletWidthMinPx: $mqTabletFsPx
+        ,$mqMobileWidthMinPx: $mqMobileFsPx
+        ,$mqDesk01WidthMinPx: $mqDesk01FsPx
+        ,$mqDesk02WidthMinPx: $mqDesk02FsPx
+        ,$mqDesk03WidthMinPx: $mqDesk03FsPx
+        ,$mqDesk04WidthMinPx: $mqDesk04FsPx
+        ,$mqDesk05WidthMinPx: $mqDesk05FsPx
+        ,$mqDesk06WidthMinPx: $mqDesk06FsPx
+        ,$mqDesk07WidthMinPx: $mqDesk07FsPx
+    );
+    @include poly-fluid-sizing('font-size', $map);
+
+}

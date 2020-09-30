@@ -1,0 +1,134 @@
+:root {
+
+/* color
+   ========================================================================== */
+   //mode: light
+  --colorText: #000000;
+  --colorTextNega: #ffffff;
+  --colorBg: #D8D8D8;
+  --colorIndexDefault: rgba(0, 0, 0, 1);
+  --colorIndexHover: rgba(0, 0, 0, 0);
+  --colorLink: #0000ff;
+  --selectionBg: #000000;
+  --selectionText: #ffffff;
+
+  --anchorTextNega: #ffffff;
+  --anchorBgNega: #0000ff;
+  --anchorTextPosi: #0000ff;
+
+  @media (prefers-color-scheme: dark) {//mode: dark
+    --colorText: #ffffff;
+    --colorTextNega: #000000;
+    --colorBg: #939393;
+    --colorIndexDefault: rgba(255, 255, 255, 1);
+    --colorIndexHover: rgba(255, 255, 255, 0);
+  }
+
+  //404
+  --notFoundText: #ffffff;
+  --notFoundBg: #0000ff;
+  --notFoundLink: #ffff00;
+
+/* easing
+   ========================================================================== */
+--easeOutCirc: 0.075, 0.82, 0.165, 1;
+
+
+/* font-family
+   ========================================================================== */
+
+// web font
+  --ffWebInterVarEn: 'Inter var experimental';
+  --ffWebInterNormalEn: 'Inter';
+  --ffWebYakuBodyJa: YakuHanJPs;
+  --ffWebYakuHeadJa: YakuHanJP;
+
+// device font
+  --ffDeviceBodyEn: LinotypeUnivers, Univers, Neue Haas Grotesk, "Helvetica Neue", Helvetica, Roboto, "Noto Sans", "Droid Sans";
+  --ffDeviceBodyJa: "Noto Sans JP", "游ゴシック", YuGothic, Hiragino Sans, "ヒラギノ角ゴシック", Hiragino Kaku Gothic ProN, "ヒラギノ角ゴ ProN W3";
+  --ffDeviceHeadJa: "Noto Sans JP", "游ゴシック", YuGothic, Hiragino Sans, "ヒラギノ角ゴシック", Hiragino Kaku Gothic ProN, "ヒラギノ角ゴ ProN W3";
+  --ffCommon: -apple-system, BlinkMacSystemFont, Verdana, sans-serif;
+
+// combine: normal
+  --ffBodyAllDefault:  var(--ffWebInterNormalEn), var(--ffDeviceBodyEn), var(--ffWebYakuBodyJa), var(--ffDeviceBodyJa), var(--ffCommon);
+  --ffHeadAllDefault:  var(--ffWebInterNormalEn), var(--ffDeviceBodyEn), var(--ffWebYakuHeadJa), var(--ffDeviceBodyJa), var(--ffCommon);
+
+// combine: including variable font
+  --ffBodyAllVar:  var(--ffWebInterVarEn), var(--ffDeviceBodyEn), var(--ffWebYakuBodyJa), var(--ffDeviceBodyJa), var(--ffCommon);
+  --ffHeadAllVar:  var(--ffWebInterVarEn), var(--ffDeviceBodyEn), var(--ffWebYakuHeadJa), var(--ffDeviceBodyJa), var(--ffCommon);
+
+// pixel web font
+  --ffPixelAllEn: 'neuePixelGrotesk_all', var(--ffDeviceBodyEn);
+  --ffPixelNovowelEn: 'neuePixelGrotesk_novowel', var(--ffDeviceBodyEn);
+  --ffPixelAllJa: 'pixelMplus12_all';
+  --ffPixelArrowJa: 'pixelMplus12_arrow';
+  --ffPixelAll: var(--ffPixelAllEn), var(--ffPixelAllJa);
+  //for @font-face
+  --ffPixelEn: 'Neue Pixel Grotesk';
+
+  /* font-variation-settings
+     ========================================================================== */
+
+  // wght = font-weight
+  --fvsWeightThin:       100;
+  --fvsWeightExtraLight: 200;
+  --fvsWeightLight:      300;
+  --fvsWeightRegular:    400;
+  --fvsWeightMedium:     500;
+  --fvsWeightSemiBold:   600;
+  --fvsWeightBold:       700;
+  --fvsWeightHeavy:      800;
+  --fvsWeightBlack:      900;
+
+  // slnt = font-style: italic;
+  --fvsItalicOff: 0;
+  --fvsItalicOn: 10;
+}
+
+
+/* font-size & width (sass var. not css var.)
+   ========================================================================== */
+
+//width
+$widthMin: min-width;
+$widthMax: max-width;
+// mqPhone
+$mqPhone            : "phone";
+$mqPhoneWidthMinPx  :    0px;
+$mqPhoneFsPx        :   14px;
+// mqTablet
+$mqTablet           : "tablet";
+$mqTabletWidthMinPx :  768px;
+$mqTabletFsPx       :   14px;
+// mqMobile
+$mqMobile           : "mobile";
+$mqMobileWidthMinPx :  992px;
+$mqMobileFsPx       :   14px;
+// mqDesk01
+$mqDesk01           : "desk01";
+$mqDesk01WidthMinPx : 1152px;
+$mqDesk01FsPx       :   16px;
+// mqDesk02
+$mqDesk02           : "desk02";
+$mqDesk02WidthMinPx : 1344px;
+$mqDesk02FsPx       :   16px;
+// mqDesk03
+$mqDesk03           : "desk03";
+$mqDesk03WidthMinPx : 1504px;
+$mqDesk03FsPx       :   16px;
+// mqDesk04
+$mqDesk04           : "desk04";
+$mqDesk04WidthMinPx : 1760px;
+$mqDesk04FsPx       :   20px;
+// mqDesk05
+$mqDesk05           : "desk05";
+$mqDesk05WidthMinPx : 2016px;
+$mqDesk05FsPx       :   22px;
+// mqDesk06
+$mqDesk06           : "desk06";
+$mqDesk06WidthMinPx : 2272px;
+$mqDesk06FsPx       :   24px;
+// mqDesk07
+$mqDesk07           : "desk07";
+$mqDesk07WidthMinPx : 2688px;
+$mqDesk07FsPx       :   28px;
