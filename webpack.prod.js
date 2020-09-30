@@ -1,11 +1,6 @@
 module.exports = {
-  // モード値を production に設定すると最適化された状態で、
-  // development に設定するとソースマップ有効でJSファイルが出力される
-  mode: "development",
-
-  // メインのJS
+  mode: "production",
   entry: "./src/js/main.js",
-  // 出力ファイル
   output: {
     filename: "assets/js/typegrid.js"
   },
@@ -16,7 +11,14 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'babel-loader',
         options: {
-          presets: ['@babel/preset-env'],
+          presets: [
+              ['@babel/preset-env'],
+              ["minify",{
+                "removeConsole": {
+                  "exclude": ["error", "info"]
+                }
+              }]
+            ],
           plugins: ['@babel/plugin-transform-runtime'],
         },
       }
