@@ -7,13 +7,18 @@ module.exports = {
   entry: "./src/js/main.js",
   // 出力ファイル
   output: {
-    filename: "typegrid.js"
+    filename: "assets/js/typegrid.js"
   },
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
-        use: 'babel-loader'
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-env'],
+          plugins: ['@babel/plugin-transform-runtime'],
+        },
       }
     ]
   }

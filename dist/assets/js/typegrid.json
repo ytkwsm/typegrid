@@ -1,0 +1,53 @@
+{
+    "settings":{
+        "debug": {
+            "msg": {
+                 "hello"      : "Loaded typegrid.json!"
+                ,"storage"    : "Loaded typegrid_json on sessionStorage"
+            }
+            ,"cnt": 0
+        }
+    }
+    ,"general": {
+         "visibility"         : true
+        ,"fixed"              : true
+        ,"deviceDecision"     : "@media"
+        ,"unit": {
+          "breakPoints"       : "px"
+        }
+    }
+    ,"media" :{
+        "devices"             : ["mobile", "tablet", "desktop-small", "desktop-mid"]
+        ,"contents": {
+             "writingMode"    : ["horizontal-tb", "horizontal-tb", "horizontal-tb", "horizontal-tb"]
+            ,"fontSize"       : [14, 14, 16, "computed"]
+            ,"lineHeight"     : [1.75, 1.75, 1.75, 1.75]
+            ,"letterSpacing"  : [1, 1, 1, 1]
+            ,"breakPoints": {
+                "width": {
+                    "min"     : [0, 768, 992, 1200]
+                }
+            }
+            ,"gutter"         : [1.25, 4, "auto", "auto"]
+        }
+        ,"grids": {
+            "base" : {
+                "num"         : [4, 4, 4, 4]
+                ,"gutter"     : [2, 2, 2, 2]
+            }
+            ,"column": {
+                "num"         : [4, 8, 10, 12]
+                ,"sizeChar"   : ["fluid", "fluid", 4, 4]
+                ,"gutter"     : [1, 2, 2, 2]
+            }
+            ,"row":{
+               "height"       : [4.375, 4.375, 4.375, 4.375]
+              ,"gutter"       : [1.75, 1.75, 1.75, 1.75]
+            }
+            ,"unit" : {
+                "num"         : [4, 4, 4, 4]
+                ,"gutter"     : [2, 2, 2, 2]
+            }
+        }
+    }
+}
