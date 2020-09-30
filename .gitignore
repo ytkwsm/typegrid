@@ -1,0 +1,8 @@
+.DS_Store
+.buildpath
+.project
+.settings/
+nbproject/
+/node_modules/
+/**/**.scssc
+/dest/js/typegrid.js
