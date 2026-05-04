@@ -21,7 +21,7 @@ const validConfig = {
     grids: {
       base:   { num: [4, 12], gutter: [1, 1] },
       column: { num: [4, 12], sizeChar: ['fluid', 'fluid'], gutter: [1, 1] },
-      row:    { num: [1, 1],  gutter: [0.5, 0.5], height: [1, 1] },
+      row:    { height: [1, 1], gutter: [0.5, 0.5] },
       unit:   { num: [4, 12], gutter: [1, 1] },
     },
   },

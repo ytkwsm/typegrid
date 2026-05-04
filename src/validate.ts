@@ -101,21 +101,17 @@ export function validateConfig(config: unknown): ValidationResult {
   if (!isObject(grids)) {
     errors.push('media.grids が存在しないか不正な型です');
   } else {
-    const checkGrid = (name: string, extra?: Record<string, (v: unknown) => boolean>): void => {
+    const checkGrid = (name: string, fields: Record<string, (v: unknown) => boolean>): void => {
       const g = grids[name];
       if (!isObject(g)) { errors.push(`media.grids.${name} が存在しないか不正な型です`); return; }
-      checkArray(`media.grids.${name}.num`,    g['num'],    isNumber);
-      checkArray(`media.grids.${name}.gutter`, g['gutter'], isNumber);
-      if (extra) {
-        for (const [key, guard] of Object.entries(extra)) {
-          checkArray(`media.grids.${name}.${key}`, g[key], guard as (v: unknown) => v is unknown);
-        }
+      for (const [key, guard] of Object.entries(fields)) {
+        checkArray(`media.grids.${name}.${key}`, g[key], guard as (v: unknown) => v is unknown);
       }
     };
-    checkGrid('base');
-    checkGrid('column', { sizeChar: isFluidOrNumber });
-    checkGrid('row',    { height: isNumber });
-    checkGrid('unit');
+    checkGrid('base',   { num: isNumber, gutter: isNumber });
+    checkGrid('column', { num: isNumber, sizeChar: isFluidOrNumber, gutter: isNumber });
+    checkGrid('row',    { height: isNumber, gutter: isNumber });
+    checkGrid('unit',   { num: isNumber, gutter: isNumber });
   }
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };

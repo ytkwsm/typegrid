@@ -22,7 +22,7 @@ const makeConfig = (deviceCount = 2): TypegridConfig => ({
     grids: {
       base:   { num: Array(deviceCount).fill(4), gutter: Array(deviceCount).fill(1) },
       column: { num: Array(deviceCount).fill(4), sizeChar: Array(deviceCount).fill('fluid'), gutter: Array(deviceCount).fill(1) },
-      row:    { num: Array(deviceCount).fill(1), height: Array(deviceCount).fill(1), gutter: Array(deviceCount).fill(0.5) },
+      row:    { height: Array(deviceCount).fill(1), gutter: Array(deviceCount).fill(0.5) },
       unit:   { num: Array(deviceCount).fill(4), gutter: Array(deviceCount).fill(1) },
     },
   },

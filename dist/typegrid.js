@@ -271,9 +271,22 @@ function K(e) {
 				t.push(`media.grids.${e} が存在しないか不正な型です`);
 				return;
 			}
-			if (o(`media.grids.${e}.num`, r.num, H), o(`media.grids.${e}.gutter`, r.gutter, H), n) for (let [t, i] of Object.entries(n)) o(`media.grids.${e}.${t}`, r[t], i);
+			for (let [t, i] of Object.entries(n)) o(`media.grids.${e}.${t}`, r[t], i);
 		};
-		e("base"), e("column", { sizeChar: G }), e("row", { height: H }), e("unit");
+		e("base", {
+			num: H,
+			gutter: H
+		}), e("column", {
+			num: H,
+			sizeChar: G,
+			gutter: H
+		}), e("row", {
+			height: H,
+			gutter: H
+		}), e("unit", {
+			num: H,
+			gutter: H
+		});
 	}
 	return t.length === 0 ? { ok: !0 } : {
 		ok: !1,
