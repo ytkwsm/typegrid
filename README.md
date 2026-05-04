@@ -106,7 +106,7 @@ typegrid({ gui: GUI }); // GUI コンストラクタを明示的に渡す
 
 グリッドの設定ファイル。スクリプトと同じディレクトリに配置する。
 
-詳細なスキーマは [SPEC.md](SPEC.md) を参照。
+詳細なスキーマは [docs/SPEC.md](docs/SPEC.md) を参照。
 
 ```json
 {
