@@ -22,6 +22,7 @@ export class TypegridController {
   /** リスナー解除関数（destroy 時に呼び出す） */
   private readonly unlistenMedia: () => void;
   private readonly uncheckWindow: () => void;
+  private readonly unKeyBinds: () => void;
 
   constructor(utilsModule: typeof utils, model: TypegridModel, view: TypegridView) {
     this.utils = utilsModule;
@@ -30,8 +31,8 @@ export class TypegridController {
 
     this.unlistenMedia = this.media();
     this.uncheckWindow = this.resize();
+    this.unKeyBinds    = this.keyBinds();
     this.init();
-    this.keyBinds();
   }
 
   /** DOMContentLoaded または即時に view.render('init') を呼ぶ */
@@ -68,8 +69,8 @@ export class TypegridController {
     return this.utils.checkWindowSize(this.model, this.view, renderResize);
   }
 
-  private keyBinds(): void {
-    this.utils.keyBinds(this.model, this.view);
+  private keyBinds(): () => void {
+    return this.utils.keyBinds(this.model, this.view);
   }
 
   /**
@@ -79,5 +80,6 @@ export class TypegridController {
   destroy(): void {
     this.unlistenMedia();
     this.uncheckWindow();
+    this.unKeyBinds();
   }
 }

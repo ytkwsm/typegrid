@@ -17,6 +17,8 @@ import type { DeviceSnapshot } from './types/typegrid.d.ts';
 
 type RenderMode = 'init' | 'resize' | 'change' | 'media';
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
 export class TypegridView {
   readonly utils: typeof utils;
   readonly model: TypegridModel;
@@ -33,6 +35,35 @@ export class TypegridView {
 
   reset(resetElem: Element): void {
     this.utils.reset(resetElem);
+  }
+
+  /**
+   * SVG子要素を差分更新する。
+   * 既存要素の属性を上書きし、不足分を追加、余剰分を削除する。
+   */
+  private syncSvgElements<T extends SVGElement>(
+    container: Element,
+    count: number,
+    tagName: string,
+    setAttrs: (el: T, i: number) => void,
+  ): void {
+    const children = container.children;
+
+    for (let i = 0; i < Math.min(children.length, count); i++) {
+      setAttrs(children[i] as T, i);
+    }
+
+    const frag = document.createDocumentFragment();
+    for (let i = children.length; i < count; i++) {
+      const el = document.createElementNS(SVG_NS, tagName) as T;
+      setAttrs(el, i);
+      frag.appendChild(el);
+    }
+    if (frag.childNodes.length > 0) container.appendChild(frag);
+
+    while (container.children.length > count) {
+      container.lastElementChild!.remove();
+    }
   }
 
   visibility(): void {
@@ -101,24 +132,21 @@ export class TypegridView {
     const height            = currentHeight;
     const columnNum         = currentColumnNum;
     const gutterBaseWidth   = fontSize * currentGutter;
-    const guttterTotal      = gutterBaseWidth * columnNum - gutterBaseWidth;
+    const gutterTotal       = gutterBaseWidth * columnNum - gutterBaseWidth;
 
     const gutterSideEach         = this.utils.decisionGutterSideType(currentGutterSide, fontSize);
     const gutterSideInstallments = (gutterSideEach * 2) / columnNum;
     const columnWidth            = this.utils.decisionColumnSizeType(
-      fontSize, currentSizeChar, width, columnNum, guttterTotal, gutterSideInstallments,
+      fontSize, currentSizeChar, width, columnNum, gutterTotal, gutterSideInstallments,
     );
     const widthTotal             = columnWidth * columnNum;
-    const widthAll               = guttterTotal + widthTotal;
+    const widthAll               = gutterTotal + widthTotal;
     const gutterOutsideWidthOneSide = (width - widthAll) / 2;
 
     const targetInsert = document.getElementById('tg_layout__body');
     if (!targetInsert) return;
-    this.reset(targetInsert);
 
-    const fragGrids = document.createDocumentFragment();
-    for (let cnt = 0; cnt < columnNum; cnt++) {
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    this.syncSvgElements<SVGRectElement>(targetInsert, columnNum, 'rect', (rect, cnt) => {
       rect.setAttribute('class', `rect-x${cnt}`);
       rect.setAttribute('x', String(gutterBaseWidth * cnt + cnt * columnWidth + gutterOutsideWidthOneSide));
       rect.setAttribute('y', '0');
@@ -128,9 +156,7 @@ export class TypegridView {
       rect.setAttribute('fill-opacity', '0.125');
       rect.setAttribute('stroke', '#ff0000');
       rect.setAttribute('stroke-opacity', '0.5');
-      fragGrids.appendChild(rect);
-    }
-    targetInsert.appendChild(fragGrids);
+    });
   }
 
   row(
@@ -152,11 +178,8 @@ export class TypegridView {
 
     const targetInsert = document.getElementById('tg_row__body');
     if (!targetInsert) return;
-    this.reset(targetInsert);
 
-    const fragGrids = document.createDocumentFragment();
-    for (let cnt = 0; cnt < loopNum; cnt++) {
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    this.syncSvgElements<SVGRectElement>(targetInsert, loopNum, 'rect', (rect, cnt) => {
       rect.setAttribute('class', `row-y${cnt}`);
       rect.setAttribute('x', '0');
       rect.setAttribute('y', String(Math.floor(cnt * rowHeight * fontSize + cnt * rowGutter * fontSize)));
@@ -166,9 +189,7 @@ export class TypegridView {
       rect.setAttribute('fill-opacity', '0.125');
       rect.setAttribute('stroke', '#ff0000');
       rect.setAttribute('stroke-opacity', '0.5');
-      fragGrids.appendChild(rect);
-    }
-    targetInsert.appendChild(fragGrids);
+    });
   }
 
   rhythm(
@@ -185,11 +206,8 @@ export class TypegridView {
 
     const targetInsert = document.getElementById('tg_rhythm__body');
     if (!targetInsert) return;
-    this.reset(targetInsert);
 
-    const fragGrids = document.createDocumentFragment();
-    for (let cnt = 0; cnt < loopNum; cnt++) {
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    this.syncSvgElements<SVGLineElement>(targetInsert, loopNum, 'line', (line, cnt) => {
       line.setAttribute('class', `line-y${cnt}`);
       line.setAttribute('x1', '0');
       line.setAttribute('y1', String(cnt * fontSize * lineHeight / 2));
@@ -199,9 +217,7 @@ export class TypegridView {
       line.setAttribute('stroke', '#999999');
       line.setAttribute('stroke-width', '0.5');
       line.setAttribute('stroke-opacity', '0.75');
-      fragGrids.appendChild(line);
-    }
-    targetInsert.appendChild(fragGrids);
+    });
   }
 
   ruler(): void {

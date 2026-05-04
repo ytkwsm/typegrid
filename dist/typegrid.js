@@ -123,13 +123,11 @@ function C(e) {
 }
 function w(e) {
 	let t = /rgba?\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),?\s*([.\d]+)?\)/.exec(e);
-	if (!t) return "";
-	let n = "";
-	for (let e = 1; e <= 3; e++) {
-		let r = Number(t[e]).toString(16);
-		n += r.length === 1 ? `0${r}` : r;
-	}
-	return n;
+	return t ? [
+		1,
+		2,
+		3
+	].map((e) => Number(t[e]).toString(16).padStart(2, "0")).join("") : "";
 }
 function T(e, t) {
 	if (e === "computed") {
@@ -154,7 +152,7 @@ function k(e, t, n) {
 	r && (r.setAttribute("width", String(t)), r.setAttribute("height", String(n)), r.setAttribute("viewBox", `0 0 ${t} ${n}`));
 }
 function A(e) {
-	e.textContent = null;
+	e.replaceChildren();
 }
 function j(e) {
 	let t = document.createElement("style"), n = document.getElementById("tg_all");
@@ -194,20 +192,24 @@ function N(e, t, n) {
 	};
 }
 function P(e, t, n) {
-	let r = -1, i = () => {
-		r === -1 && (r = window.setTimeout(() => {
-			e.debug.count.resize += 1, n(), clearTimeout(r), r = -1;
-		}, 300));
-	};
-	return window.addEventListener("resize", i, !1), function() {
-		window.removeEventListener("resize", i, !1);
+	let r = -1, i = new ResizeObserver(() => {
+		r === -1 && (r = requestAnimationFrame(() => {
+			e.debug.count.resize += 1, n(), r = -1;
+		}));
+	});
+	return i.observe(document.documentElement), function() {
+		r !== -1 && cancelAnimationFrame(r), i.disconnect();
 	};
 }
 function F(e, t) {
 	let n = e.visibility, r = e.fixed, i = document.getElementById("tg_all");
-	i && document.body.addEventListener("keydown", (e) => {
+	if (!i) return () => {};
+	let a = (e) => {
 		e.key === "g" && (n = !n, i.style.display = n ? "block" : "none"), e.key === "p" && (r = !r, i.style.position = r ? "fixed" : "absolute");
-	});
+	};
+	return document.body.addEventListener("keydown", a), function() {
+		document.body.removeEventListener("keydown", a);
+	};
 }
 function I(e, t, n) {
 	return t.map((e, r) => r === 0 ? `screen and (max-width: ${t[r + 1] - 1}${n})` : r === t.length - 1 ? `screen and (min-width: ${e}${n})` : `screen and (min-width: ${e}${n}) and (max-width: ${t[r + 1] - 1}${n})`);
@@ -221,14 +223,16 @@ function L() {
 }
 //#endregion
 //#region src/user.ts
-function R(e) {
+async function R(e) {
 	let t = L(), n = (t.includes("typegrid.js") ? t.replace(/typegrid\.js$/g, "") : "/") + a.json.file;
-	fetch(n).then((e) => {
-		if (e.ok) return e.json();
-		throw Error(i.get.notfound);
-	}).then(e).catch((e) => {
-		e instanceof Error ? console.error(`[${a.name}] Failed to load typegrid.json:`, e.message) : console.error(`[${a.name}] Failed to load typegrid.json:`, e);
-	});
+	try {
+		let t = await fetch(n);
+		if (!t.ok) throw Error(i.get.notfound);
+		e(await t.json());
+	} catch (e) {
+		let t = e instanceof Error ? e.message : String(e);
+		console.error(`[${a.name}] Failed to load typegrid.json:`, t);
+	}
 }
 //#endregion
 //#region src/model.ts
@@ -237,7 +241,8 @@ var z = class {
 		this.currentMedia = null, this.debug = r, this.lib = a, this.consoleCss = o, this.attr = s, this.aria = c, this.style = l, this.sizes = d, this.num = f, this.color = p, this.elem = m, this.config = { styleBase: u }, this.user = e, this.devices = e.media.devices, this.fontSize = e.media.contents.fontSize, this.visibility = e.general.visibility, this.fixed = e.general.fixed, this.scrollbarWidth = _(), this.width(), this.height(), this.ua(), this.keyboard(), this.size(), this.getStyle();
 	}
 	getJsonValues(e) {
-		let t = this.user.media;
+		let t = this.user.media, n = t.devices.length;
+		if (e < 0 || e >= n) throw RangeError(`[typegrid] getJsonValues: index ${e} is out of range (0–${n - 1})`);
 		return {
 			devices: t.devices[e],
 			contents: {
@@ -295,7 +300,7 @@ var z = class {
 	getStyle() {
 		E("html");
 	}
-}, B = class {
+}, B = "http://www.w3.org/2000/svg", V = class {
 	constructor(e, t) {
 		this.currentMedia = null, this.utils = e, this.model = t;
 	}
@@ -304,6 +309,16 @@ var z = class {
 	}
 	reset(e) {
 		this.utils.reset(e);
+	}
+	syncSvgElements(e, t, n, r) {
+		let i = e.children;
+		for (let e = 0; e < Math.min(i.length, t); e++) r(i[e], e);
+		let a = document.createDocumentFragment();
+		for (let e = i.length; e < t; e++) {
+			let t = document.createElementNS(B, n);
+			r(t, e), a.appendChild(t);
+		}
+		for (a.childNodes.length > 0 && e.appendChild(a); e.children.length > t;) e.lastElementChild.remove();
 	}
 	visibility() {
 		let e = this.model.visibility, t = document.getElementById("tg_all");
@@ -327,45 +342,30 @@ var z = class {
 	unit() {}
 	layout(e, t, n, r, i, a, o) {
 		let s = e, c = t, l = n, u = r, d = s * a, f = d * u - d, p = this.utils.decisionGutterSideType(o, s) * 2 / u, m = this.utils.decisionColumnSizeType(s, i, c, u, f, p), h = (c - (f + m * u)) / 2, g = document.getElementById("tg_layout__body");
-		if (!g) return;
-		this.reset(g);
-		let _ = document.createDocumentFragment();
-		for (let e = 0; e < u; e++) {
-			let t = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-			t.setAttribute("class", `rect-x${e}`), t.setAttribute("x", String(d * e + e * m + h)), t.setAttribute("y", "0"), t.setAttribute("width", String(m)), t.setAttribute("height", String(l)), t.setAttribute("fill", "#ff0000"), t.setAttribute("fill-opacity", "0.125"), t.setAttribute("stroke", "#ff0000"), t.setAttribute("stroke-opacity", "0.5"), _.appendChild(t);
-		}
-		g.appendChild(_);
+		g && this.syncSvgElements(g, u, "rect", (e, t) => {
+			e.setAttribute("class", `rect-x${t}`), e.setAttribute("x", String(d * t + t * m + h)), e.setAttribute("y", "0"), e.setAttribute("width", String(m)), e.setAttribute("height", String(l)), e.setAttribute("fill", "#ff0000"), e.setAttribute("fill-opacity", "0.125"), e.setAttribute("stroke", "#ff0000"), e.setAttribute("stroke-opacity", "0.5");
+		});
 	}
 	row(e, t, n, r, i, a) {
 		let o = e, s = n, c = r, l = i, u = a, d = (l + u) * o, f = Math.floor(c / d) + 1, p = document.getElementById("tg_row__body");
-		if (!p) return;
-		this.reset(p);
-		let m = document.createDocumentFragment();
-		for (let e = 0; e < f; e++) {
-			let t = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-			t.setAttribute("class", `row-y${e}`), t.setAttribute("x", "0"), t.setAttribute("y", String(Math.floor(e * l * o + e * u * o))), t.setAttribute("width", String(s)), t.setAttribute("height", String(l * o)), t.setAttribute("fill", "#ff0000"), t.setAttribute("fill-opacity", "0.125"), t.setAttribute("stroke", "#ff0000"), t.setAttribute("stroke-opacity", "0.5"), m.appendChild(t);
-		}
-		p.appendChild(m);
+		p && this.syncSvgElements(p, f, "rect", (e, t) => {
+			e.setAttribute("class", `row-y${t}`), e.setAttribute("x", "0"), e.setAttribute("y", String(Math.floor(t * l * o + t * u * o))), e.setAttribute("width", String(s)), e.setAttribute("height", String(l * o)), e.setAttribute("fill", "#ff0000"), e.setAttribute("fill-opacity", "0.125"), e.setAttribute("stroke", "#ff0000"), e.setAttribute("stroke-opacity", "0.5");
+		});
 	}
 	rhythm(e, t, n, r) {
 		let i = e, a = t, o = n, s = Math.floor(r / i * a), c = document.getElementById("tg_rhythm__body");
-		if (!c) return;
-		this.reset(c);
-		let l = document.createDocumentFragment();
-		for (let e = 0; e < s; e++) {
-			let t = document.createElementNS("http://www.w3.org/2000/svg", "line");
-			t.setAttribute("class", `line-y${e}`), t.setAttribute("x1", "0"), t.setAttribute("y1", String(e * i * a / 2)), t.setAttribute("x2", String(o)), t.setAttribute("y2", String(e * i * a / 2)), t.setAttribute("fill", "none"), t.setAttribute("stroke", "#999999"), t.setAttribute("stroke-width", "0.5"), t.setAttribute("stroke-opacity", "0.75"), l.appendChild(t);
-		}
-		c.appendChild(l);
+		c && this.syncSvgElements(c, s, "line", (e, t) => {
+			e.setAttribute("class", `line-y${t}`), e.setAttribute("x1", "0"), e.setAttribute("y1", String(t * i * a / 2)), e.setAttribute("x2", String(o)), e.setAttribute("y2", String(t * i * a / 2)), e.setAttribute("fill", "none"), e.setAttribute("stroke", "#999999"), e.setAttribute("stroke-width", "0.5"), e.setAttribute("stroke-opacity", "0.75");
+		});
 	}
 	ruler() {}
 	guide() {}
 	gui() {}
 	keyboard() {}
 	size() {}
-}, V = class {
+}, H = class {
 	constructor(e, t, n) {
-		this.utils = e, this.model = t, this.view = n, this.unlistenMedia = this.media(), this.uncheckWindow = this.resize(), this.init(), this.keyBinds();
+		this.utils = e, this.model = t, this.view = n, this.unlistenMedia = this.media(), this.uncheckWindow = this.resize(), this.unKeyBinds = this.keyBinds(), this.init();
 	}
 	init() {
 		let e = () => {
@@ -384,20 +384,20 @@ var z = class {
 		});
 	}
 	keyBinds() {
-		this.utils.keyBinds(this.model, this.view);
+		return this.utils.keyBinds(this.model, this.view);
 	}
 	destroy() {
-		this.unlistenMedia(), this.uncheckWindow();
+		this.unlistenMedia(), this.uncheckWindow(), this.unKeyBinds();
 	}
 };
 //#endregion
 //#region src/main.ts
-function H() {
+function U() {
 	let e = null, t = {
 		init() {
 			R((t) => {
 				let n = new z(t);
-				e = new V(h, n, new B(h, n));
+				e = new H(h, n, new V(h, n));
 			});
 		},
 		destroy() {
@@ -407,4 +407,4 @@ function H() {
 	return t.init(), t;
 }
 //#endregion
-export { H as typegrid };
+export { U as typegrid };
