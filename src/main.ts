@@ -15,12 +15,30 @@ import { getJSON } from './user.js';
 import { TypegridModel }      from './model.js';
 import { TypegridView }       from './view.js';
 import { TypegridController } from './controller.js';
+import type { GuiConstructor } from './gui.js';
 import type { TypegridConfig } from './types/typegrid.d.ts';
 
 /** typegrid のパブリックAPI */
 export interface TypegridAPI {
   init: () => void;
   destroy: () => void;
+}
+
+/**
+ * typegrid の初期化オプション。
+ *
+ * `gui` — lil-gui のコンストラクタを渡すと GUI パネルが有効になる。
+ * CDN script タグで lil-gui を読み込んでいる場合は指定不要（window.lil.GUI を自動検出）。
+ *
+ * 使用例（JS import）:
+ * ```js
+ * import { GUI } from 'lil-gui';
+ * import { typegrid } from './typegrid.js';
+ * typegrid({ gui: GUI });
+ * ```
+ */
+export interface TypegridOptions {
+  gui?: GuiConstructor;
 }
 
 /**
@@ -31,11 +49,11 @@ export interface TypegridAPI {
  * ```html
  * <script type="module">
  *   import { typegrid } from './dist/typegrid.js';
- *   const tg = typegrid();
+ *   typegrid();
  * </script>
  * ```
  */
-export function typegrid(): TypegridAPI {
+export function typegrid(options?: TypegridOptions): TypegridAPI {
   let controller: TypegridController | null = null;
   let fetchAbort: AbortController | null = null;
 
@@ -46,7 +64,7 @@ export function typegrid(): TypegridAPI {
         fetchAbort = null;
         const model = new TypegridModel(json);
         const view  = new TypegridView(utils, model);
-        controller  = new TypegridController(utils, model, view);
+        controller  = new TypegridController(utils, model, view, options?.gui);
       }, fetchAbort.signal);
     },
     destroy() {

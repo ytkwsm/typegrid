@@ -11,6 +11,7 @@
  */
 
 import * as utils from './utils.js';
+import { tryInitGui, type GuiConstructor, type TypegridGui } from './gui.js';
 import type { TypegridModel } from './model.js';
 import type { TypegridView } from './view.js';
 
@@ -18,29 +19,32 @@ export class TypegridController {
   private readonly utils: typeof utils;
   private readonly model: TypegridModel;
   private readonly view: TypegridView;
+  private readonly guiConstructor: GuiConstructor | undefined;
 
   /** リスナー解除関数（destroy 時に呼び出す） */
   private readonly unlistenMedia: () => void;
   private readonly uncheckWindow: () => void;
   // keyBinds は tg_all がDOMに追加された後に登録するため、noop で初期化して init 内で上書きする
   private unKeyBinds: () => void = () => {};
+  private gui: TypegridGui | null = null;
 
-  constructor(utilsModule: typeof utils, model: TypegridModel, view: TypegridView) {
-    this.utils = utilsModule;
-    this.model = model;
-    this.view  = view;
+  constructor(utilsModule: typeof utils, model: TypegridModel, view: TypegridView, guiConstructor?: GuiConstructor) {
+    this.utils          = utilsModule;
+    this.model          = model;
+    this.view           = view;
+    this.guiConstructor = guiConstructor;
 
     this.unlistenMedia = this.media();
     this.uncheckWindow = this.resize();
-    this.init(); // keyBinds は init 内で tg_all 生成後に登録する
+    this.init(); // keyBinds / GUI は init 内で tg_all 生成後に登録する
   }
 
   /** DOMContentLoaded または即時に view.render('init') を呼ぶ */
   private init(): void {
     const callback = (): void => {
       this.view.render('init');
-      // tg_all が DOM に追加された後にキーバインドを登録する
       this.unKeyBinds = this.utils.keyBinds(this.model, this.view);
+      this.gui = tryInitGui(this.model, this.view, this.guiConstructor);
     };
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', callback, { once: true });
@@ -56,6 +60,7 @@ export class TypegridController {
   private media(): () => void {
     const renderMedia = (mediaIndex: number): void => {
       this.view.render('media', mediaIndex);
+      this.gui?.updateMedia(mediaIndex);
     };
     return this.utils.listenMediaQueries(this.model, this.view, renderMedia);
   }
@@ -79,5 +84,6 @@ export class TypegridController {
     this.unlistenMedia();
     this.uncheckWindow();
     this.unKeyBinds();
+    this.gui?.destroy();
   }
 }

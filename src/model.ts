@@ -45,6 +45,12 @@ export class TypegridModel {
    */
   currentMedia: DeviceSnapshot | null = null;
 
+  /**
+   * 現在マッチしているデバイスのインデックス。
+   * listenMediaQueries がセットする。
+   */
+  currentMediaIndex: number = 0;
+
   constructor(userConfig: TypegridConfig) {
     this.debug       = config.debug;
     this.lib         = config.lib;
