@@ -222,13 +222,78 @@ function L() {
 	return t?.src ? t.src : "";
 }
 //#endregion
+//#region src/validate.ts
+function R(e) {
+	return typeof e == "object" && !!e && !Array.isArray(e);
+}
+function z(e, t, n = 1) {
+	return Array.isArray(e) && e.length >= n && e.every(t);
+}
+var B = (e) => typeof e == "string", V = (e) => typeof e == "boolean", H = (e) => typeof e == "number" && isFinite(e), U = (e) => H(e) || e === "computed", W = (e) => H(e) || e === "auto", G = (e) => e === "fluid" || H(e);
+function K(e) {
+	let t = [];
+	if (!R(e)) return {
+		ok: !1,
+		errors: ["config はオブジェクトである必要があります"]
+	};
+	let n = e.general;
+	if (!R(n)) t.push("general が存在しないか不正な型です");
+	else {
+		V(n.visibility) || t.push("general.visibility は boolean が必要です"), V(n.fixed) || t.push("general.fixed は boolean が必要です"), B(n.deviceDecision) || t.push("general.deviceDecision は string が必要です");
+		let e = n.unit;
+		(!R(e) || !B(e.breakPoints)) && t.push("general.unit.breakPoints は string が必要です");
+	}
+	let r = e.media;
+	if (!R(r)) return t.push("media が存在しないか不正な型です"), {
+		ok: !1,
+		errors: t
+	};
+	let i = r.devices;
+	if (!z(i, B)) return t.push("media.devices は string[] (1件以上) が必要です"), {
+		ok: !1,
+		errors: t
+	};
+	let a = i.length, o = (e, n, r) => {
+		(!z(n, r) || n.length !== a) && t.push(`${e} は長さ ${a} の配列が必要です`);
+	}, s = r.contents;
+	if (!R(s)) t.push("media.contents が存在しないか不正な型です");
+	else {
+		o("media.contents.writingMode", s.writingMode, B), o("media.contents.fontSize", s.fontSize, U), o("media.contents.lineHeight", s.lineHeight, H), o("media.contents.letterSpacing", s.letterSpacing, H), o("media.contents.gutter", s.gutter, W);
+		let e = s.breakPoints;
+		!R(e) || !R(e.width) ? t.push("media.contents.breakPoints.width が存在しないか不正な型です") : o("media.contents.breakPoints.width.min", e.width.min, H);
+	}
+	let c = r.grids;
+	if (!R(c)) t.push("media.grids が存在しないか不正な型です");
+	else {
+		let e = (e, n) => {
+			let r = c[e];
+			if (!R(r)) {
+				t.push(`media.grids.${e} が存在しないか不正な型です`);
+				return;
+			}
+			if (o(`media.grids.${e}.num`, r.num, H), o(`media.grids.${e}.gutter`, r.gutter, H), n) for (let [t, i] of Object.entries(n)) o(`media.grids.${e}.${t}`, r[t], i);
+		};
+		e("base"), e("column", { sizeChar: G }), e("row", { height: H }), e("unit");
+	}
+	return t.length === 0 ? { ok: !0 } : {
+		ok: !1,
+		errors: t
+	};
+}
+function q(e) {
+	let t = K(e);
+	return t.ok ? !0 : (console.warn("[typegrid] typegrid.json の設定に問題があります:"), t.errors.forEach((e) => console.warn(`  - ${e}`)), !1);
+}
+//#endregion
 //#region src/user.ts
-async function R(e) {
+async function J(e) {
 	let t = L(), n = (t.includes("typegrid.js") ? t.replace(/typegrid\.js$/g, "") : "/") + a.json.file;
 	try {
 		let t = await fetch(n);
 		if (!t.ok) throw Error(i.get.notfound);
-		e(await t.json());
+		let r = await t.json();
+		if (!q(r)) return;
+		e(r);
 	} catch (e) {
 		let t = e instanceof Error ? e.message : String(e);
 		console.error(`[${a.name}] Failed to load typegrid.json:`, t);
@@ -236,7 +301,7 @@ async function R(e) {
 }
 //#endregion
 //#region src/model.ts
-var z = class {
+var Y = class {
 	constructor(e) {
 		this.currentMedia = null, this.debug = r, this.lib = a, this.consoleCss = o, this.attr = s, this.aria = c, this.style = l, this.sizes = d, this.num = f, this.color = p, this.elem = m, this.config = { styleBase: u }, this.user = e, this.devices = e.media.devices, this.fontSize = e.media.contents.fontSize, this.visibility = e.general.visibility, this.fixed = e.general.fixed, this.scrollbarWidth = _(), this.width(), this.height(), this.ua(), this.keyboard(), this.size(), this.getStyle();
 	}
@@ -300,7 +365,7 @@ var z = class {
 	getStyle() {
 		E("html");
 	}
-}, B = "http://www.w3.org/2000/svg", V = class {
+}, X = "http://www.w3.org/2000/svg", Z = class {
 	constructor(e, t) {
 		this.currentMedia = null, this.utils = e, this.model = t;
 	}
@@ -315,7 +380,7 @@ var z = class {
 		for (let e = 0; e < Math.min(i.length, t); e++) r(i[e], e);
 		let a = document.createDocumentFragment();
 		for (let e = i.length; e < t; e++) {
-			let t = document.createElementNS(B, n);
+			let t = document.createElementNS(X, n);
 			r(t, e), a.appendChild(t);
 		}
 		for (a.childNodes.length > 0 && e.appendChild(a); e.children.length > t;) e.lastElementChild.remove();
@@ -363,7 +428,7 @@ var z = class {
 	gui() {}
 	keyboard() {}
 	size() {}
-}, H = class {
+}, Q = class {
 	constructor(e, t, n) {
 		this.unKeyBinds = () => {}, this.utils = e, this.model = t, this.view = n, this.unlistenMedia = this.media(), this.uncheckWindow = this.resize(), this.init();
 	}
@@ -389,12 +454,12 @@ var z = class {
 };
 //#endregion
 //#region src/main.ts
-function U() {
+function $() {
 	let e = null, t = {
 		init() {
-			R((t) => {
-				let n = new z(t);
-				e = new H(h, n, new V(h, n));
+			J((t) => {
+				let n = new Y(t);
+				e = new Q(h, n, new Z(h, n));
 			});
 		},
 		destroy() {
@@ -404,4 +469,4 @@ function U() {
 	return t.init(), t;
 }
 //#endregion
-export { U as typegrid };
+export { $ as typegrid };
