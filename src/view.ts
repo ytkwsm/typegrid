@@ -23,6 +23,7 @@ export class TypegridView {
   readonly utils: typeof utils;
   readonly model: TypegridModel;
   currentMedia: DeviceSnapshot | null = null;
+  private cachedFontSize: number | null = null;
 
   constructor(utilsModule: typeof utils, model: TypegridModel) {
     this.utils = utilsModule;
@@ -85,7 +86,10 @@ export class TypegridView {
       this.render('resize');
     } else if (flg === 'resize') {
       if (!this.currentMedia) return;
-      const renderFontSize    = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, 'html');
+      if (this.cachedFontSize === null) {
+        this.cachedFontSize = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, 'html');
+      }
+      const renderFontSize    = this.cachedFontSize;
       const renderLineHeight  = this.currentMedia.contents.lineHeight;
       const renderWidth       = this.model.width();
       const renderHeight      = this.utils.height();
@@ -107,6 +111,7 @@ export class TypegridView {
     } else if (flg === 'media') {
       if (param1 === undefined) return;
       this.currentMedia = this.model.getJsonValues(param1);
+      this.cachedFontSize = null;
     }
   }
 
@@ -152,10 +157,6 @@ export class TypegridView {
       rect.setAttribute('y', '0');
       rect.setAttribute('width', String(columnWidth));
       rect.setAttribute('height', String(height));
-      rect.setAttribute('fill', '#ff0000');
-      rect.setAttribute('fill-opacity', '0.125');
-      rect.setAttribute('stroke', '#ff0000');
-      rect.setAttribute('stroke-opacity', '0.5');
     });
   }
 
@@ -185,10 +186,6 @@ export class TypegridView {
       rect.setAttribute('y', String(Math.floor(cnt * rowHeight * fontSize + cnt * rowGutter * fontSize)));
       rect.setAttribute('width', String(width));
       rect.setAttribute('height', String(rowHeight * fontSize));
-      rect.setAttribute('fill', '#ff0000');
-      rect.setAttribute('fill-opacity', '0.125');
-      rect.setAttribute('stroke', '#ff0000');
-      rect.setAttribute('stroke-opacity', '0.5');
     });
   }
 
@@ -213,10 +210,6 @@ export class TypegridView {
       line.setAttribute('y1', String(cnt * fontSize * lineHeight / 2));
       line.setAttribute('x2', String(width));
       line.setAttribute('y2', String(cnt * fontSize * lineHeight / 2));
-      line.setAttribute('fill', 'none');
-      line.setAttribute('stroke', '#999999');
-      line.setAttribute('stroke-width', '0.5');
-      line.setAttribute('stroke-opacity', '0.75');
     });
   }
 
