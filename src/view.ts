@@ -88,6 +88,12 @@ export class TypegridView {
     }
   }
 
+  /** cachedFontSize / cachedMediaCalc を破棄する。GUI から値を変更した後に呼ぶ */
+  invalidateMediaCalc(): void {
+    this.cachedFontSize  = null;
+    this.cachedMediaCalc = null;
+  }
+
   visibility(): void {
     const status = this.model.visibility;
     const target = document.getElementById('tg_all');

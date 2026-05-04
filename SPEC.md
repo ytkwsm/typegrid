@@ -2,7 +2,7 @@
 
 ## 1. ライブラリ概要
 
-- **目的**: ブラウザ上にデザイン用レイアウトグリッドをSVGで表示するデバッグ補助ツール。  
+- **目的**: ブラウザ上にデザイン用レイアウトグリッドを SVG で表示するデバッグ補助ツール。
   グラフィックデザイナーおよびエンジニアがブラウザ上でレイアウト・タイポグラフィを確認する用途を想定する。
 - **作者**: @ytkwsm (Yuta Kawasumi)
 - **ライセンス**: MIT
@@ -10,84 +10,162 @@
 
 ---
 
-## 2. アーキテクチャ（現状）
+## 2. アーキテクチャ
 
 ### 構成パターン
 
 MVC (Model / View / Controller) パターンを採用。
 
 ```
-main.js
-├── data/config.js         ← 定数・デフォルト設定（ライブラリ内部設定）
-├── modules/snippet.js     ← スクリプトのファイルパス取得
-├── modules/user.js        ← typegrid.json を fetch で取得
-├── modules/utils.js       ← 共通処理（DOM操作・イベント・計算）
-├── mvc/model.js           ← データ管理・状態保持
-├── mvc/view.js            ← SVG生成・DOM描画
-└── mvc/controller.js      ← イベント統括・MVCの橋渡し
+main.ts
+├── config.ts           ← 定数・デフォルト設定（ライブラリ内部）
+├── snippet.ts          ← スクリプトのファイルパス取得
+├── user.ts             ← typegrid.json を fetch で取得・検証
+├── validate.ts         ← typegrid.json のスキーマ検証
+├── utils.ts            ← 共通処理（DOM操作・イベント・計算）
+├── model.ts            ← データ管理・状態保持
+├── view.ts             ← SVG生成・DOM描画
+├── controller.ts       ← イベント統括・MVC の橋渡し
+└── gui.ts              ← lil-gui 連携（任意）
 ```
-
-### ビルド環境（現状）
-
-- **バンドラ**: webpack 4
-- **トランスパイラ**: Babel (babel-preset-env / ES5変換)
-- **タスクランナー**: gulp 3 (browser-sync / scss / strip-debug)
-- **出力先**: `dest/js/typegrid.js`
-- **Node.js バージョン**: v9.4.0（.node-version）
 
 ### 起動フロー
 
-1. `main.js` が `user.js` 経由で `typegrid.json` を fetch
-2. JSON取得成功後に `MyModel` → `MyView` → `MyController` を順番にインスタンス化
-3. `window.__typegrid = new App()` としてグローバルに公開
-4. Controller が `media()` / `init()` / `resize()` / `keyBinds()` を起動
+```
+typegrid(options?)
+  └─ getJSON()                 ← typegrid.json を fetch
+       └─ TypegridModel(json)  ← モデル生成
+       └─ TypegridView(utils, model)
+       └─ TypegridController(utils, model, view, options.gui?)
+            ├─ listenMediaQueries()   ← ブレークポイント監視・初期メディア設定
+            ├─ checkWindowSize()      ← リサイズ監視
+            └─ DOMContentLoaded
+                 ├─ view.render('init')  ← DOM 構築・初期描画
+                 ├─ keyBinds()           ← キーボードショートカット登録
+                 └─ tryInitGui()         ← GUI パネル生成（lil-gui が存在する場合のみ）
+```
 
----
+### ビルド環境
 
-## 3. 機能一覧
-
-### SVGオーバーレイ生成
-
-- `#tg_all` ルートdivを `document.body` の末尾に追加
-- スタイル: `position: absolute; z-index: 99900; pointer-events: none`
-- `#tg_all` 配下に `<style id="tg_style">` を挿入してオーバーレイのCSSを適用
-
-### グリッド種別
-
-| 種別 | ID | 内容 |
-|---|---|---|
-| layout | `#tg_layout__body` | カラムグリッド（縦方向の列） |
-| row | `#tg_row__body` | 段組グリッド（横方向の行） |
-| rhythm | `#tg_rhythm__body` | ベースライングリッド（等間隔の横線） |
-| base | `#tg_base__body` | 未実装（スタブのみ） |
-| unit | `#tg_unit__body` | 未実装（スタブのみ） |
-
-### レスポンシブ対応
-
-- `window.matchMedia` によるブレークポイント切替
-- JSON の `media.contents.breakPoints.width.min` を元にメディアクエリ文字列を生成
-- マッチしたデバイスインデックスで `model.getJsonValues(index)` を呼び出し、描画パラメータを切替
-
-### リサイズ対応
-
-- `window.addEventListener("resize", ...)` によるリサイズ検知
-- **デバウンス**: 300ms タイマーで間引き処理
-
-### キーボードショートカット
-
-| キー | 動作 |
+| 項目 | 内容 |
 |---|---|
-| `g` | グリッドの表示 / 非表示トグル |
-| `p` | `position: fixed` / `position: absolute` 切替 |
-
-### 外部設定ファイル
-
-- `typegrid.json` を `fetch()` で読み込む
-- ファイルパスは `snippet.js` でスクリプトのURLから自動解決
+| バンドラ | Vite |
+| 言語 | TypeScript |
+| 出力形式 | ES Module (`dist/typegrid.js`) / IIFE (`dist/typegrid.iife.js`) |
+| テスト | Vitest + jsdom |
 
 ---
 
-## 4. typegrid.json 設定スキーマ
+## 3. API
+
+### `typegrid(options?): TypegridAPI`
+
+typegrid を初期化してパブリック API オブジェクトを返す。  
+呼び出し時に `typegrid.json` の fetch と MVC 構築を自動的に開始する。
+
+#### オプション
+
+```typescript
+interface TypegridOptions {
+  gui?: GuiConstructor; // lil-gui のコンストラクタ（任意）
+}
+```
+
+`gui` を指定しない場合、`window.lil.GUI`（CDN script タグ読み込み）を自動検出する。
+
+#### 返り値
+
+```typescript
+interface TypegridAPI {
+  init():    void; // 再初期化（通常は不要）
+  destroy(): void; // リスナー・GUI を全て解除
+}
+```
+
+#### 使用例
+
+```js
+// IIFE
+typegrid.typegrid();
+
+// ES Module（GUI なし）
+import { typegrid } from './typegrid.js';
+typegrid();
+
+// ES Module（GUI あり・import 方式）
+import { GUI } from 'lil-gui';
+import { typegrid } from './typegrid.js';
+typegrid({ gui: GUI });
+```
+
+---
+
+## 4. typegrid.json スキーマ
+
+### 全体構造
+
+```typescript
+interface TypegridConfig {
+  general: GeneralSettings;
+  media:   MediaSettings;
+}
+```
+
+### `general`
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `visibility` | `boolean` | 初期表示状態。`false` で非表示起動 |
+| `fixed` | `boolean` | `true` = `position: fixed` / `false` = `position: absolute` |
+| `deviceDecision` | `"@media"` | デバイス判定方法。現在は `"@media"` のみ実装 |
+| `unit.breakPoints` | `string` | ブレークポイントの単位（例: `"px"`） |
+
+### `media`
+
+全ての配列フィールドは `media.devices` と同じ長さで、インデックスでデバイスに対応する。
+
+#### `media.devices`
+
+```json
+["mobile", "tablet", "desktop-small", "desktop-mid"]
+```
+
+デバイス名の配列。各インデックスが以下の配列と対応する。
+
+#### `media.contents`
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `writingMode` | `string[]` | CSS `writing-mode` の値 |
+| `fontSize` | `(number \| "computed")[]` | フォントサイズ (px)。`"computed"` は `<html>` 要素の実測値を使用 |
+| `lineHeight` | `number[]` | 行送り比率（`font-size` に対する倍率） |
+| `letterSpacing` | `number[]` | 字間（未実装） |
+| `breakPoints.width.min` | `number[]` | ブレークポイントの最小幅 |
+| `gutter` | `(number \| "auto")[]` | 両端の余白（文字数換算）。`"auto"` = 余白なし（0 扱い） |
+
+#### `media.grids.column`
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `num` | `number[]` | カラム数 |
+| `sizeChar` | `("fluid" \| number)[]` | カラム幅。`"fluid"` = 等分割 / 数値 = 文字数換算の固定幅 |
+| `gutter` | `number[]` | カラム間の溝幅（文字数換算） |
+
+#### `media.grids.row`
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `height` | `number[]` | 行の高さ（文字数換算） |
+| `gutter` | `number[]` | 行間隔（文字数換算） |
+
+#### `media.grids.base` / `media.grids.unit`
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `num` | `number[]` | グリッド数（未実装） |
+| `gutter` | `number[]` | 溝幅（未実装） |
+
+### サンプル
 
 ```json
 {
@@ -95,9 +173,7 @@ main.js
     "visibility": true,
     "fixed": true,
     "deviceDecision": "@media",
-    "unit": {
-      "breakPoints": "px"
-    }
+    "unit": { "breakPoints": "px" }
   },
   "media": {
     "devices": ["mobile", "tablet", "desktop-small", "desktop-mid"],
@@ -106,134 +182,166 @@ main.js
       "fontSize":      [14, 14, 16, "computed"],
       "lineHeight":    [1.75, 1.75, 1.75, 1.75],
       "letterSpacing": [1, 1, 1, 1],
-      "breakPoints": {
-        "width": {
-          "min": [0, 768, 992, 1200]
-        }
-      },
-      "gutter": [1.25, 4, "auto", "auto"]
+      "breakPoints":   { "width": { "min": [0, 768, 992, 1200] } },
+      "gutter":        [1.25, 4, "auto", "auto"]
     },
     "grids": {
-      "base": {
-        "num":    [4, 4, 4, 4],
-        "gutter": [2, 2, 2, 2]
-      },
-      "column": {
-        "num":      [4, 8, 10, 12],
-        "sizeChar": ["fluid", "fluid", 4, 4],
-        "gutter":   [1, 2, 2, 2]
-      },
-      "row": {
-        "height": [4.375, 4.375, 4.375, 4.375],
-        "gutter": [1.75, 1.75, 1.75, 1.75]
-      },
-      "unit": {
-        "num":    [4, 4, 4, 4],
-        "gutter": [2, 2, 2, 2]
-      }
+      "base":   { "num": [4, 4, 4, 4], "gutter": [2, 2, 2, 2] },
+      "column": { "num": [4, 8, 10, 12], "sizeChar": ["fluid", "fluid", 4, 4], "gutter": [1, 2, 2, 2] },
+      "row":    { "height": [4.375, 4.375, 4.375, 4.375], "gutter": [1.75, 1.75, 1.75, 1.75] },
+      "unit":   { "num": [4, 4, 4, 4], "gutter": [2, 2, 2, 2] }
     }
   }
 }
 ```
 
-### フィールド説明
+---
 
-| フィールド | 型 | 説明 |
-|---|---|---|
-| `general.visibility` | boolean | 初期表示状態 |
-| `general.fixed` | boolean | `fixed` / `absolute` の初期値 |
-| `general.deviceDecision` | `"@media"` \| `"userAgent"` | デバイス判定方法 |
-| `general.unit.breakPoints` | string | ブレークポイントの単位（"px"） |
-| `media.devices` | string[] | デバイス名の配列（インデックスで参照） |
-| `media.contents.fontSize` | `(number \| "computed")[]` | フォントサイズ。`"computed"` は `html` 要素の実測値を使用 |
-| `media.contents.gutter` | `(number \| "auto")[]` | サイドガター。`"auto"` は両端スペースなし |
-| `media.grids.column.sizeChar` | `("fluid" \| number)[]` | カラム幅。`"fluid"` は等分割、数値は文字数換算 |
+## 5. グリッド種別
+
+| 種別 | SVG要素 ID | 内容 | 状態 |
+|---|---|---|---|
+| column | `#tg_layout__body` | カラムグリッド（縦方向の列） | **実装済み** |
+| row | `#tg_row__body` | 段組グリッド（横方向の行） | **実装済み** |
+| rhythm | `#tg_rhythm__body` | ベースライングリッド（等間隔の横線） | **実装済み** |
+| base | `#tg_base__body` | ベースグリッド | 未実装（スタブ） |
+| unit | `#tg_unit__body` | ユニットグリッド | 未実装（スタブ） |
+
+### カラムグリッドの計算式
+
+```
+gutterBaseWidth        = fontSize × column.gutter
+gutterTotal            = gutterBaseWidth × columnNum − gutterBaseWidth
+gutterSideEach         = contents.gutter × fontSize  （"auto" の場合は 0）
+gutterSideInstallments = (gutterSideEach × 2) / columnNum
+
+columnWidth（fluid）   = (width − gutterTotal) / columnNum − gutterSideInstallments
+columnWidth（fixed）   = fontSize × column.sizeChar − gutterSideInstallments
+
+x 座標（n番目カラム） = gutterBaseWidth × n + n × columnWidth + (width − widthAll) / 2
+```
+
+### 段組グリッドの計算式
+
+```
+rowTotalHeight = (row.height + row.gutter) × fontSize
+rowHeightPx    = row.height × fontSize
+
+y 座標（n行目） = n × rowTotalHeight
+```
+
+### ベースラインの計算式
+
+```
+lineCount = floor((height / fontSize) × lineHeight)
+y 座標    = n × fontSize × lineHeight / 2
+```
 
 ---
 
-## 5. DOM構造
+## 6. DOM 構造
+
+typegrid が `document.body` の末尾に追加する要素:
 
 ```html
-<body>
-  <!-- ...既存コンテンツ... -->
-
-  <!-- typegrid が body末尾に追加 -->
-  <div id="tg_all" role="presentation" aria-hidden="true">
-    <style id="tg_style">/* オーバーレイCSS */</style>
-    <div id="tg_wrapper">
-      <svg id="tg_grid">
-        <g id="tg_base">
-          <g id="tg_base__body"></g>
-        </g>
-        <g id="tg_unit">
-          <g id="tg_unit__body"></g>
-        </g>
-        <g id="tg_layout">
-          <g id="tg_layout__body"></g>  <!-- カラムグリッド -->
-        </g>
-        <g id="tg_row">
-          <g id="tg_row__body"></g>     <!-- 段組グリッド -->
-        </g>
-        <g id="tg_rhythm">
-          <g id="tg_rhythm__body"></g>  <!-- ベースライン -->
-        </g>
-      </svg>
-    </div>
-    <div id="tg_ruler">
-      <div id="tg_ruler__body"></div>
-    </div>
-    <div id="tg_settings"></div>
-    <div id="tg_gui">
-      <div id="tg_gui__body"></div>
-    </div>
+<div id="tg_all" role="presentation" aria-hidden="true">
+  <style id="tg_style">/* CSS カスタムプロパティ + グリッドスタイル */</style>
+  <div id="tg_wrapper">
+    <svg id="tg_grid" contain="layout style paint">
+      <g id="tg_base">   <g id="tg_base__body"></g></g>
+      <g id="tg_unit">   <g id="tg_unit__body"></g></g>
+      <g id="tg_sizes">  <g id="tg_sizes__body"></g></g>
+      <g id="tg_chars">  <g id="tg_chars__body"></g></g>
+      <g id="tg_layout"> <g id="tg_layout__body"><!-- column rects --></g></g>
+      <g id="tg_row">    <g id="tg_row__body"><!-- row rects --></g></g>
+      <g id="tg_rhythm"> <g id="tg_rhythm__body"><!-- baseline lines --></g></g>
+    </svg>
   </div>
-</body>
+  <div id="tg_ruler"><div id="tg_ruler__body"></div></div>
+  <div id="tg_settings"></div>
+  <div id="tg_gui"><div id="tg_gui__body"></div></div>
+</div>
 ```
 
 ---
 
-## 6. 現在の課題・未実装箇所
+## 7. CSS カスタムプロパティ
 
-| 項目 | 状態 | 詳細 |
-|---|---|---|
-| `userAgent` 判定 | 未対応 | `deviceDecision: "userAgent"` は警告ログを出すのみ。`@media` のみ実装済み |
-| `base()` | スタブ | model / view ともに console.log のみ |
-| `unit()` | スタブ | model / view ともに console.log のみ |
-| `gui()` | スタブ | model / view ともに console.log のみ |
-| `ruler()` | スタブ | model / view ともに console.log のみ |
-| `matchMedia.addListener` | 非推奨 | `addEventListener('change', ...)` への移行が必要（utils.js L423） |
-| `this` コンテキスト依存 | 問題あり | `utils.js` の `listenMediaQueries` 等が `this` に `_self` を bind して使用しており、関数として export すると `this` が undefined になる |
-| `window.__typegrid` | グローバル汚染 | named export への移行が必要 |
-| `console.log` 過多 | 要整理 | デバッグ用 console.log が大量に残存 |
-| `view.js` の `grid()` | バグ | メソッド内で `type = {...}` と宣言しており、変数宣言がない（暗黙的グローバル） |
+グリッドの色は CSS カスタムプロパティで上書き可能:
+
+```css
+:root {
+  --tg-color-column: #ff0000;  /* カラムグリッドの色 */
+  --tg-color-row:    #ff0000;  /* 段組グリッドの色 */
+  --tg-color-rhythm: #999999;  /* ベースラインの色 */
+}
+```
 
 ---
 
-## 7. TypeScript移行方針（フェーズ2）
+## 8. GUI パネル仕様
 
-### ビルド環境
+`gui.ts` が提供する lil-gui 連携パネル。
 
-| 項目 | 移行前 | 移行後 |
+### 検出ロジック
+
+```
+tryInitGui(model, view, guiConstructor?)
+  1. guiConstructor が渡されている → それを使う
+  2. window.lil?.GUI が存在する    → それを使う
+  3. どちらもない                   → null を返す（GUI なしで通常動作）
+```
+
+### パネル構成
+
+```
+typegrid
+├── Contents
+│   ├── font-size (px)      ← contents.fontSize[currentIndex]
+│   ├── line-height         ← contents.lineHeight[currentIndex]
+│   └── side gutter (rem)   ← contents.gutter[currentIndex]（"auto" → 0）
+├── Column
+│   ├── columns             ← grids.column.num[currentIndex]
+│   └── gutter (rem)        ← grids.column.gutter[currentIndex]
+├── Row
+│   ├── height (rem)        ← grids.row.height[currentIndex]
+│   └── gutter (rem)        ← grids.row.gutter[currentIndex]
+└── Export JSON             ← 現在の値を反映した typegrid.json をダウンロード
+```
+
+### メディア切替時の動作
+
+ブレークポイントをまたいだとき、パネルの表示値を新しいデバイスの設定値に自動更新する。
+
+### Export JSON の注意
+
+- 現在表示中のデバイスの値のみ書き換える。他のデバイスの値はそのまま。
+- `"computed"` / `"auto"` / `"fluid"` として設定していた値は、Export 時に実際の数値に固定される。
+
+---
+
+## 9. パフォーマンス最適化
+
+| 最適化 | 実装箇所 | 内容 |
 |---|---|---|
-| バンドラ | webpack 4 + Babel | Vite |
-| 言語 | JavaScript (ES6+) | TypeScript 5.x |
-| 出力先 | `dest/js/` | `dist/` |
-| スクリプト | gulp + webpack-stream | `vite dev` / `vite build` |
+| SVG 差分更新 | `view.ts: syncSvgElements()` | 既存要素を再利用し、追加・削除のみを最小化 |
+| メディアキャッシュ | `view.ts: cachedMediaCalc` | メディア切替時のみ再計算するレイアウト定数キャッシュ |
+| フォントサイズキャッシュ | `view.ts: cachedFontSize` | `getComputedStyle` の呼び出しを抑制 |
+| DOM 要素キャッシュ | `view.ts: elSvgGrid` 等 | 初期化後に `getElementById` を毎回呼ばない |
+| ResizeObserver + rAF | `utils.ts: checkWindowSize()` | リサイズを RAF で 1 フレーム 1 回に間引き |
+| CSS containment | `#tg_grid` | `contain: layout style paint` で再レイアウト範囲を限定 |
+| AbortController | `user.ts / main.ts` | destroy 時に fetch をキャンセル |
 
-### ファイル構成（移行後）
+---
 
-```
-src/
-├── types/
-│   └── typegrid.d.ts       ← 型定義（JSONスキーマ・内部型）
-├── config.ts               ← 旧 data/config.js
-├── snippet.ts              ← 旧 modules/snippet.js
-├── user.ts                 ← 旧 modules/user.js
-├── utils.ts                ← 旧 modules/utils.js
-├── model.ts                ← 旧 mvc/model.js
-├── view.ts                 ← 旧 mvc/view.js
-├── controller.ts           ← 旧 mvc/controller.js
-└── main.ts                 ← エントリポイント
-```
+## 10. 未実装・今後の予定
 
-旧 `src/js/` は参照用として残す（削除しない）。
+| 項目 | 詳細 |
+|---|---|
+| `base()` グリッド | スタブのみ |
+| `unit()` グリッド | スタブのみ。文字数 × n の正方形タイルを想定 |
+| `ruler()` | スタブのみ |
+| `guide()` | スタブのみ |
+| 非対称レイアウト対応 | カラムグリッドの左右オフセット指定 |
+| `userAgent` 判定 | `deviceDecision: "userAgent"` は未実装（`@media` のみ） |
+| `letterSpacing` 反映 | JSON の値は保持するが描画には未使用 |
