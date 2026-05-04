@@ -48,11 +48,11 @@ export function checkBrowserHeight(): boolean {
   return viewportHeight < documentHeight;
 }
 
-/** wrapper 要素の height をドキュメントの高さに合わせる */
-export function setWrapperHeight(): void {
+/** wrapper 要素の height をドキュメントの高さに合わせる。h を渡すと再計算を省略する */
+export function setWrapperHeight(h?: number): void {
   const target = document.getElementById('tg_wrapper');
   if (!target) return;
-  target.style.height = `${height()}px`;
+  target.style.height = `${h ?? height()}px`;
 }
 
 /** ブラウザの横幅（px）を返す */

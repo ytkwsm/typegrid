@@ -93,7 +93,7 @@ export class TypegridView {
       const renderLineHeight  = this.currentMedia.contents.lineHeight;
       const renderWidth       = this.model.width();
       const renderHeight      = this.utils.height();
-      this.model.wrapperHeight();
+      this.model.wrapperHeight(renderHeight);
       const renderColumnNum   = this.currentMedia.grids.column.num;
       const renderSizeChar    = this.currentMedia.grids.column.sizeChar;
       const renderRowHeight   = this.currentMedia.grids.row.height;
