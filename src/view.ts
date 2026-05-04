@@ -23,6 +23,7 @@ export class TypegridView {
   readonly utils: typeof utils;
   readonly model: TypegridModel;
   currentMedia: DeviceSnapshot | null = null;
+  private cachedFontSize: number | null = null;
 
   constructor(utilsModule: typeof utils, model: TypegridModel) {
     this.utils = utilsModule;
@@ -85,7 +86,10 @@ export class TypegridView {
       this.render('resize');
     } else if (flg === 'resize') {
       if (!this.currentMedia) return;
-      const renderFontSize    = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, 'html');
+      if (this.cachedFontSize === null) {
+        this.cachedFontSize = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, 'html');
+      }
+      const renderFontSize    = this.cachedFontSize;
       const renderLineHeight  = this.currentMedia.contents.lineHeight;
       const renderWidth       = this.model.width();
       const renderHeight      = this.utils.height();
@@ -107,6 +111,7 @@ export class TypegridView {
     } else if (flg === 'media') {
       if (param1 === undefined) return;
       this.currentMedia = this.model.getJsonValues(param1);
+      this.cachedFontSize = null;
     }
   }
 
