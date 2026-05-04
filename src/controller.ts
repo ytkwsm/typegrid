@@ -43,7 +43,7 @@ export class TypegridController {
       this.unKeyBinds = this.utils.keyBinds(this.model, this.view);
     };
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', callback);
+      document.addEventListener('DOMContentLoaded', callback, { once: true });
     } else {
       callback();
     }
