@@ -152,10 +152,6 @@ export class TypegridView {
       rect.setAttribute('y', '0');
       rect.setAttribute('width', String(columnWidth));
       rect.setAttribute('height', String(height));
-      rect.setAttribute('fill', '#ff0000');
-      rect.setAttribute('fill-opacity', '0.125');
-      rect.setAttribute('stroke', '#ff0000');
-      rect.setAttribute('stroke-opacity', '0.5');
     });
   }
 
@@ -185,10 +181,6 @@ export class TypegridView {
       rect.setAttribute('y', String(Math.floor(cnt * rowHeight * fontSize + cnt * rowGutter * fontSize)));
       rect.setAttribute('width', String(width));
       rect.setAttribute('height', String(rowHeight * fontSize));
-      rect.setAttribute('fill', '#ff0000');
-      rect.setAttribute('fill-opacity', '0.125');
-      rect.setAttribute('stroke', '#ff0000');
-      rect.setAttribute('stroke-opacity', '0.5');
     });
   }
 
@@ -213,10 +205,6 @@ export class TypegridView {
       line.setAttribute('y1', String(cnt * fontSize * lineHeight / 2));
       line.setAttribute('x2', String(width));
       line.setAttribute('y2', String(cnt * fontSize * lineHeight / 2));
-      line.setAttribute('fill', 'none');
-      line.setAttribute('stroke', '#999999');
-      line.setAttribute('stroke-width', '0.5');
-      line.setAttribute('stroke-opacity', '0.75');
     });
   }
 
