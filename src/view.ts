@@ -17,6 +17,20 @@ import type { DeviceSnapshot } from './types/typegrid.d.ts';
 
 type RenderMode = 'init' | 'resize' | 'change' | 'media';
 
+/** メディアが変わった時のみ再計算するレイアウト定数のキャッシュ */
+type MediaCalcCache = {
+  fontSize: number;
+  lineHeight: number;
+  columnNum: number;
+  sizeChar: 'fluid' | number;
+  gutterBaseWidth: number;
+  gutterTotal: number;
+  gutterSideEach: number;
+  gutterSideInstallments: number;
+  rowTotalHeight: number;   // (rowHeight + rowGutter) * fontSize — 行間隔（y位置計算用）
+  rowHeightPx: number;      // rowHeight * fontSize — 行の高さ（rect height用）
+};
+
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 export class TypegridView {
@@ -24,6 +38,13 @@ export class TypegridView {
   readonly model: TypegridModel;
   currentMedia: DeviceSnapshot | null = null;
   private cachedFontSize: number | null = null;
+  private cachedMediaCalc: MediaCalcCache | null = null;
+
+  /** render('init') 後にキャッシュするDOM要素（毎フレームの getElementById を省略） */
+  private elSvgGrid:    Element | null = null;
+  private elLayoutBody: Element | null = null;
+  private elRowBody:    Element | null = null;
+  private elRhythmBody: Element | null = null;
 
   constructor(utilsModule: typeof utils, model: TypegridModel) {
     this.utils = utilsModule;
@@ -71,16 +92,20 @@ export class TypegridView {
     const status = this.model.visibility;
     const target = document.getElementById('tg_all');
     if (!target) return;
-    target.setAttribute('style', `display: ${status ? 'block' : 'none'}`);
+    target.style.display = status ? 'block' : 'none';
   }
 
   render(flg: RenderMode, param1?: number): void {
     if (flg === 'init') {
       this.wrapper(this.model.elem.wrapper.html, this.model);
+      this.elSvgGrid    = document.getElementById('tg_grid');
+      this.elLayoutBody = document.getElementById('tg_layout__body');
+      this.elRowBody    = document.getElementById('tg_row__body');
+      this.elRhythmBody = document.getElementById('tg_rhythm__body');
       this.model.wrapperHeight();
       this.visibility();
       this.utils.insertStyleElem(this.model.config.styleBase);
-      this.utils.setSvgSizes('tg_grid', this.model.width(), this.utils.height());
+      this.utils.setSvgSizes(this.elSvgGrid, this.model.width(), this.utils.height());
       // listenMediaQueries がセットした currentMedia を取得
       this.currentMedia = this.model.currentMedia;
       this.render('resize');
@@ -89,21 +114,33 @@ export class TypegridView {
       if (this.cachedFontSize === null) {
         this.cachedFontSize = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, 'html');
       }
-      const renderFontSize    = this.cachedFontSize;
-      const renderLineHeight  = this.currentMedia.contents.lineHeight;
-      const renderWidth       = this.model.width();
-      const renderHeight      = this.utils.height();
-      this.model.wrapperHeight();
-      const renderColumnNum   = this.currentMedia.grids.column.num;
-      const renderSizeChar    = this.currentMedia.grids.column.sizeChar;
-      const renderRowHeight   = this.currentMedia.grids.row.height;
-      const renderRowGutter   = this.currentMedia.grids.row.gutter;
-      const renderGutter      = this.currentMedia.grids.column.gutter;
-      const renderGutterSide  = this.currentMedia.contents.gutter;
-      this.utils.setSvgSizes('tg_grid', renderWidth, renderHeight);
-      this.rhythm(renderFontSize, renderLineHeight, renderWidth, renderHeight);
-      this.row(renderFontSize, renderLineHeight, renderWidth, renderHeight, renderRowHeight, renderRowGutter);
-      this.layout(renderFontSize, renderWidth, renderHeight, renderColumnNum, renderSizeChar, renderGutter, renderGutterSide);
+      if (this.cachedMediaCalc === null) {
+        const fontSize    = this.cachedFontSize;
+        const columnNum   = this.currentMedia.grids.column.num;
+        const gutter      = this.currentMedia.grids.column.gutter;
+        const gutterSide  = this.currentMedia.contents.gutter;
+        const rowHeight   = this.currentMedia.grids.row.height;
+        const rowGutter   = this.currentMedia.grids.row.gutter;
+        const gutterBaseWidth        = fontSize * gutter;
+        const gutterTotal            = gutterBaseWidth * columnNum - gutterBaseWidth;
+        const gutterSideEach         = this.utils.decisionGutterSideType(gutterSide, fontSize);
+        const gutterSideInstallments = (gutterSideEach * 2) / columnNum;
+        this.cachedMediaCalc = {
+          fontSize, lineHeight: this.currentMedia.contents.lineHeight,
+          columnNum, sizeChar: this.currentMedia.grids.column.sizeChar,
+          gutterBaseWidth, gutterTotal, gutterSideEach, gutterSideInstallments,
+          rowTotalHeight: (rowHeight + rowGutter) * fontSize,
+          rowHeightPx:    rowHeight * fontSize,
+        };
+      }
+      const calc         = this.cachedMediaCalc;
+      const renderWidth  = this.model.width();
+      const renderHeight = this.utils.height();
+      this.model.wrapperHeight(renderHeight);
+      this.utils.setSvgSizes(this.elSvgGrid, renderWidth, renderHeight);
+      this.rhythm(calc, renderWidth, renderHeight);
+      this.row(calc, renderWidth, renderHeight);
+      this.layout(calc, renderWidth, renderHeight);
       this.base();
       this.unit();
     } else if (flg === 'change') {
@@ -111,7 +148,8 @@ export class TypegridView {
     } else if (flg === 'media') {
       if (param1 === undefined) return;
       this.currentMedia = this.model.getJsonValues(param1);
-      this.cachedFontSize = null;
+      this.cachedFontSize   = null;
+      this.cachedMediaCalc  = null;
     }
   }
 
@@ -123,32 +161,15 @@ export class TypegridView {
     // TODO: 実装予定
   }
 
-  layout(
-    currentFontSize: number,
-    currentWidth: number,
-    currentHeight: number,
-    currentColumnNum: number,
-    currentSizeChar: 'fluid' | number,
-    currentGutter: number,
-    currentGutterSide: number | 'auto',
-  ): void {
-    const fontSize          = currentFontSize;
-    const width             = currentWidth;
-    const height            = currentHeight;
-    const columnNum         = currentColumnNum;
-    const gutterBaseWidth   = fontSize * currentGutter;
-    const gutterTotal       = gutterBaseWidth * columnNum - gutterBaseWidth;
-
-    const gutterSideEach         = this.utils.decisionGutterSideType(currentGutterSide, fontSize);
-    const gutterSideInstallments = (gutterSideEach * 2) / columnNum;
-    const columnWidth            = this.utils.decisionColumnSizeType(
-      fontSize, currentSizeChar, width, columnNum, gutterTotal, gutterSideInstallments,
+  private layout(calc: MediaCalcCache, width: number, height: number): void {
+    const { fontSize, columnNum, sizeChar, gutterBaseWidth, gutterTotal, gutterSideInstallments } = calc;
+    const columnWidth               = this.utils.decisionColumnSizeType(
+      fontSize, sizeChar, width, columnNum, gutterTotal, gutterSideInstallments,
     );
-    const widthTotal             = columnWidth * columnNum;
-    const widthAll               = gutterTotal + widthTotal;
+    const widthAll                  = gutterTotal + columnWidth * columnNum;
     const gutterOutsideWidthOneSide = (width - widthAll) / 2;
 
-    const targetInsert = document.getElementById('tg_layout__body');
+    const targetInsert = this.elLayoutBody;
     if (!targetInsert) return;
 
     this.syncSvgElements<SVGRectElement>(targetInsert, columnNum, 'rect', (rect, cnt) => {
@@ -160,48 +181,27 @@ export class TypegridView {
     });
   }
 
-  row(
-    currentFontSize: number,
-    _currentLineHeight: number,
-    currentWidth: number,
-    currentHeight: number,
-    currentRowHeight: number,
-    currentRowGutter: number,
-  ): void {
-    const fontSize       = currentFontSize;
-    const width          = currentWidth;
-    const height         = currentHeight;
-    const rowHeight      = currentRowHeight;
-    const rowGutter      = currentRowGutter;
-    const rowTotalChar   = rowHeight + rowGutter;
-    const rowTotalHeight = rowTotalChar * fontSize;
-    const loopNum        = Math.floor(height / rowTotalHeight) + 1;
+  private row(calc: MediaCalcCache, width: number, height: number): void {
+    const { rowTotalHeight, rowHeightPx } = calc;
+    const loopNum = Math.floor(height / rowTotalHeight) + 1;
 
-    const targetInsert = document.getElementById('tg_row__body');
+    const targetInsert = this.elRowBody;
     if (!targetInsert) return;
 
     this.syncSvgElements<SVGRectElement>(targetInsert, loopNum, 'rect', (rect, cnt) => {
       rect.setAttribute('class', `row-y${cnt}`);
       rect.setAttribute('x', '0');
-      rect.setAttribute('y', String(Math.floor(cnt * rowHeight * fontSize + cnt * rowGutter * fontSize)));
+      rect.setAttribute('y', String(Math.floor(cnt * rowTotalHeight)));
       rect.setAttribute('width', String(width));
-      rect.setAttribute('height', String(rowHeight * fontSize));
+      rect.setAttribute('height', String(rowHeightPx));
     });
   }
 
-  rhythm(
-    currentFontSize: number,
-    currentLineHeight: number,
-    currentWidth: number,
-    currentHeight: number,
-  ): void {
-    const fontSize  = currentFontSize;
-    const lineHeight = currentLineHeight;
-    const width     = currentWidth;
-    const height    = currentHeight;
-    const loopNum   = Math.floor((height / fontSize) * lineHeight);
+  private rhythm(calc: MediaCalcCache, width: number, height: number): void {
+    const { fontSize, lineHeight } = calc;
+    const loopNum = Math.floor((height / fontSize) * lineHeight);
 
-    const targetInsert = document.getElementById('tg_rhythm__body');
+    const targetInsert = this.elRhythmBody;
     if (!targetInsert) return;
 
     this.syncSvgElements<SVGLineElement>(targetInsert, loopNum, 'line', (line, cnt) => {
