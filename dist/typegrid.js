@@ -43,7 +43,7 @@ var e = Object.defineProperty, t = (t, n) => {
 }, l = {
 	mode: "horizontal-tb",
 	pointerEvents: "pointer-events: none;"
-}, u = "\n#tg_all {\n    position: absolute;\n    top: 0;\n    left: 0;\n    z-index: 99900;\n    width: 100%;\n    max-width: 100%;\n    height: auto;\n    min-height: 100%;\n    overflow: hidden;\n    font-feature-settings: \"palt\";\n    pointer-events: none;\n}\n#tg_originForWidth {\n    pointer-events: none;\n    position: absolute;\n    top: 0;\n    width: calc(100vw - 100%);\n    height: 1px;\n    opacity: 0;\n}\n#tg_wrapper {\n    pointer-events: none;\n}\n#tg_ruler {\n    width: 100%;\n    min-width: 100%;\n}\n#tg_ruler, #tg_setting, #tg_gui {\n    pointer-events: auto;\n}\n", d = {
+}, u = "\n:root {\n    --tg-color-column: #ff0000;\n    --tg-color-row: #ff0000;\n    --tg-color-rhythm: #999999;\n}\n#tg_all {\n    position: absolute;\n    top: 0;\n    left: 0;\n    z-index: 99900;\n    width: 100%;\n    max-width: 100%;\n    height: auto;\n    min-height: 100%;\n    overflow: hidden;\n    font-feature-settings: \"palt\";\n    pointer-events: none;\n}\n#tg_originForWidth {\n    pointer-events: none;\n    position: absolute;\n    top: 0;\n    width: calc(100vw - 100%);\n    height: 1px;\n    opacity: 0;\n}\n#tg_wrapper {\n    pointer-events: none;\n}\n#tg_ruler {\n    width: 100%;\n    min-width: 100%;\n}\n#tg_ruler, #tg_setting, #tg_gui {\n    pointer-events: auto;\n}\n#tg_grid {\n    contain: layout style paint;\n}\n#tg_layout__body rect {\n    fill: var(--tg-color-column);\n    fill-opacity: 0.125;\n    stroke: var(--tg-color-column);\n    stroke-opacity: 0.5;\n}\n#tg_row__body rect {\n    fill: var(--tg-color-row);\n    fill-opacity: 0.125;\n    stroke: var(--tg-color-row);\n    stroke-opacity: 0.5;\n}\n#tg_rhythm__body line {\n    fill: none;\n    stroke: var(--tg-color-rhythm);\n    stroke-width: 0.5;\n    stroke-opacity: 0.75;\n}\n", d = {
 	test: 280,
 	char: 16,
 	gutter: 2
@@ -102,9 +102,9 @@ function _() {
 function v() {
 	return Math.max(window.innerHeight, document.documentElement.clientHeight) < Math.max(document.body.scrollHeight, document.body.clientHeight);
 }
-function y() {
-	let e = document.getElementById("tg_wrapper");
-	e && (e.style.height = `${x()}px`);
+function y(e) {
+	let t = document.getElementById("tg_wrapper");
+	t && (t.style.height = `${e ?? x()}px`);
 }
 function b() {
 	return window.innerWidth || document.documentElement.clientWidth || 0;
@@ -148,8 +148,7 @@ function O(e, t, n, r, i, a) {
 	return t === "fluid" ? o / r - a : e * t - a;
 }
 function k(e, t, n) {
-	let r = document.getElementById(e);
-	r && (r.setAttribute("width", String(t)), r.setAttribute("height", String(n)), r.setAttribute("viewBox", `0 0 ${t} ${n}`));
+	e && (e.setAttribute("width", String(t)), e.setAttribute("height", String(n)), e.setAttribute("viewBox", `0 0 ${t} ${n}`));
 }
 function A(e) {
 	e.replaceChildren();
@@ -163,32 +162,23 @@ function M(e, t) {
 	n.setAttribute("id", "tg_all"), n.setAttribute("role", "presentation"), n.setAttribute("aria-hidden", "true"), r.appendChild(n), n.innerHTML = e;
 }
 function N(e, t, n) {
-	let r = e.user.media.contents.breakPoints.width.min, i = e.user.media.devices, a = e.user.general.unit.breakPoints, o = -1, s = [], c = (e) => {
-		o = e, console.info(`[typegrid] media query matched: ${i[o]} (index: ${o})`), n(o);
+	let r = e.user.media.contents.breakPoints.width.min, i = e.user.media.devices, a = e.user.general.unit.breakPoints, o = -1, s = /* @__PURE__ */ new Map(), c = (t) => {
+		o = t, e.currentMediaIndex = t, console.info(`[typegrid] media query matched: ${i[o]} (index: ${o})`), n(o);
 	}, l = (e) => {
-		if (e.matches) {
-			let t = e.typegridIndex;
-			if (t !== void 0 && !isNaN(t) && o !== t) return t;
-		}
-		return -1;
-	}, u = (e) => {
 		let t = e.target;
-		if (!t) return;
-		let n = l(t);
-		n > -1 && c(n);
+		if (!t || !t.matches) return;
+		let n = s.get(t);
+		n !== void 0 && o !== n && c(n);
 	};
 	return r.forEach((t, n, r) => {
-		let i = r[n + 1], o = [`screen and (min-width: ${t}${a})`];
-		i !== void 0 && o.push(`and (max-width: ${i - 1}${a})`);
-		let c = window.matchMedia(o.join(" "));
-		if (c.typegridIndex = n, c.addEventListener("change", u), s.push(c), c.matches) {
-			let t = l(c);
-			t > -1 && (e.currentMedia = e.getJsonValues(t));
-		}
+		let i = r[n + 1], c = [`screen and (min-width: ${t}${a})`];
+		i !== void 0 && c.push(`and (max-width: ${i - 1}${a})`);
+		let u = window.matchMedia(c.join(" "));
+		s.set(u, n), u.addEventListener("change", l), u.matches && o !== n && (e.currentMedia = e.getJsonValues(n), e.currentMediaIndex = n, o = n);
 	}), function() {
-		s.forEach((e) => {
-			e.removeEventListener("change", u);
-		});
+		s.forEach((e, t) => {
+			t.removeEventListener("change", l);
+		}), s.clear();
 	};
 }
 function P(e, t, n) {
@@ -299,15 +289,16 @@ function q(e) {
 }
 //#endregion
 //#region src/user.ts
-async function J(e) {
-	let t = L(), n = (t.includes("typegrid.js") ? t.replace(/typegrid\.js$/g, "") : "/") + a.json.file;
+async function J(e, t) {
+	let n = L(), r = (n.includes("typegrid.js") ? n.replace(/typegrid\.js$/g, "") : "/") + a.json.file;
 	try {
-		let t = await fetch(n);
-		if (!t.ok) throw Error(i.get.notfound);
-		let r = await t.json();
-		if (!q(r)) return;
-		e(r);
+		let n = await fetch(r, { signal: t });
+		if (!n.ok) throw Error(i.get.notfound);
+		let a = await n.json();
+		if (!q(a)) return;
+		e(a);
 	} catch (e) {
+		if (e instanceof DOMException && e.name === "AbortError") return;
 		let t = e instanceof Error ? e.message : String(e);
 		console.error(`[${a.name}] Failed to load typegrid.json:`, t);
 	}
@@ -316,7 +307,7 @@ async function J(e) {
 //#region src/model.ts
 var Y = class {
 	constructor(e) {
-		this.currentMedia = null, this.debug = r, this.lib = a, this.consoleCss = o, this.attr = s, this.aria = c, this.style = l, this.sizes = d, this.num = f, this.color = p, this.elem = m, this.config = { styleBase: u }, this.user = e, this.devices = e.media.devices, this.fontSize = e.media.contents.fontSize, this.visibility = e.general.visibility, this.fixed = e.general.fixed, this.scrollbarWidth = _(), this.width(), this.height(), this.ua(), this.keyboard(), this.size(), this.getStyle();
+		this.currentMedia = null, this.currentMediaIndex = 0, this.debug = r, this.lib = a, this.consoleCss = o, this.attr = s, this.aria = c, this.style = l, this.sizes = d, this.num = f, this.color = p, this.elem = m, this.config = { styleBase: u }, this.user = e, this.devices = e.media.devices, this.fontSize = e.media.contents.fontSize, this.visibility = e.general.visibility, this.fixed = e.general.fixed, this.scrollbarWidth = _(), this.width(), this.height(), this.ua(), this.keyboard(), this.size(), this.getStyle();
 	}
 	getJsonValues(e) {
 		let t = this.user.media, n = t.devices.length;
@@ -359,8 +350,8 @@ var Y = class {
 	height() {
 		return x();
 	}
-	wrapperHeight() {
-		y();
+	wrapperHeight(e) {
+		y(e);
 	}
 	ua() {
 		S();
@@ -380,7 +371,7 @@ var Y = class {
 	}
 }, X = "http://www.w3.org/2000/svg", Z = class {
 	constructor(e, t) {
-		this.currentMedia = null, this.utils = e, this.model = t;
+		this.currentMedia = null, this.cachedFontSize = null, this.cachedMediaCalc = null, this.elSvgGrid = null, this.elLayoutBody = null, this.elRowBody = null, this.elRhythmBody = null, this.utils = e, this.model = t;
 	}
 	wrapper(e, t) {
 		this.utils.wrapper(e, t);
@@ -398,42 +389,58 @@ var Y = class {
 		}
 		for (a.childNodes.length > 0 && e.appendChild(a); e.children.length > t;) e.lastElementChild.remove();
 	}
+	invalidateMediaCalc() {
+		this.cachedFontSize = null, this.cachedMediaCalc = null;
+	}
 	visibility() {
 		let e = this.model.visibility, t = document.getElementById("tg_all");
-		t && t.setAttribute("style", `display: ${e ? "block" : "none"}`);
+		t && (t.style.display = e ? "block" : "none");
 	}
 	render(e, t) {
-		if (e === "init") this.wrapper(this.model.elem.wrapper.html, this.model), this.model.wrapperHeight(), this.visibility(), this.utils.insertStyleElem(this.model.config.styleBase), this.utils.setSvgSizes("tg_grid", this.model.width(), this.utils.height()), this.currentMedia = this.model.currentMedia, this.render("resize");
+		if (e === "init") this.wrapper(this.model.elem.wrapper.html, this.model), this.elSvgGrid = document.getElementById("tg_grid"), this.elLayoutBody = document.getElementById("tg_layout__body"), this.elRowBody = document.getElementById("tg_row__body"), this.elRhythmBody = document.getElementById("tg_rhythm__body"), this.model.wrapperHeight(), this.visibility(), this.utils.insertStyleElem(this.model.config.styleBase), this.utils.setSvgSizes(this.elSvgGrid, this.model.width(), this.utils.height()), this.currentMedia = this.model.currentMedia, this.render("resize");
 		else if (e === "resize") {
 			if (!this.currentMedia) return;
-			let e = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, "html"), t = this.currentMedia.contents.lineHeight, n = this.model.width(), r = this.utils.height();
-			this.model.wrapperHeight();
-			let i = this.currentMedia.grids.column.num, a = this.currentMedia.grids.column.sizeChar, o = this.currentMedia.grids.row.height, s = this.currentMedia.grids.row.gutter, c = this.currentMedia.grids.column.gutter, l = this.currentMedia.contents.gutter;
-			this.utils.setSvgSizes("tg_grid", n, r), this.rhythm(e, t, n, r), this.row(e, t, n, r, o, s), this.layout(e, n, r, i, a, c, l), this.base(), this.unit();
+			if (this.cachedFontSize === null && (this.cachedFontSize = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, "html")), this.cachedMediaCalc === null) {
+				let e = this.cachedFontSize, t = this.currentMedia.grids.column.num, n = this.currentMedia.grids.column.gutter, r = this.currentMedia.contents.gutter, i = this.currentMedia.grids.row.height, a = this.currentMedia.grids.row.gutter, o = e * n, s = o * t - o, c = this.utils.decisionGutterSideType(r, e), l = c * 2 / t;
+				this.cachedMediaCalc = {
+					fontSize: e,
+					lineHeight: this.currentMedia.contents.lineHeight,
+					columnNum: t,
+					sizeChar: this.currentMedia.grids.column.sizeChar,
+					gutterBaseWidth: o,
+					gutterTotal: s,
+					gutterSideEach: c,
+					gutterSideInstallments: l,
+					rowTotalHeight: (i + a) * e,
+					rowHeightPx: i * e
+				};
+			}
+			let e = this.cachedMediaCalc, t = this.model.width(), n = this.utils.height();
+			this.model.wrapperHeight(n), this.utils.setSvgSizes(this.elSvgGrid, t, n), this.rhythm(e, t, n), this.row(e, t, n), this.layout(e, t, n), this.base(), this.unit();
 		} else if (e === "change") this.unit();
 		else if (e === "media") {
 			if (t === void 0) return;
-			this.currentMedia = this.model.getJsonValues(t);
+			this.currentMedia = this.model.getJsonValues(t), this.cachedFontSize = null, this.cachedMediaCalc = null;
 		}
 	}
 	base() {}
 	unit() {}
-	layout(e, t, n, r, i, a, o) {
-		let s = e, c = t, l = n, u = r, d = s * a, f = d * u - d, p = this.utils.decisionGutterSideType(o, s) * 2 / u, m = this.utils.decisionColumnSizeType(s, i, c, u, f, p), h = (c - (f + m * u)) / 2, g = document.getElementById("tg_layout__body");
-		g && this.syncSvgElements(g, u, "rect", (e, t) => {
-			e.setAttribute("class", `rect-x${t}`), e.setAttribute("x", String(d * t + t * m + h)), e.setAttribute("y", "0"), e.setAttribute("width", String(m)), e.setAttribute("height", String(l)), e.setAttribute("fill", "#ff0000"), e.setAttribute("fill-opacity", "0.125"), e.setAttribute("stroke", "#ff0000"), e.setAttribute("stroke-opacity", "0.5");
+	layout(e, t, n) {
+		let { fontSize: r, columnNum: i, sizeChar: a, gutterBaseWidth: o, gutterTotal: s, gutterSideInstallments: c } = e, l = this.utils.decisionColumnSizeType(r, a, t, i, s, c), u = (t - (s + l * i)) / 2, d = this.elLayoutBody;
+		d && this.syncSvgElements(d, i, "rect", (e, t) => {
+			e.setAttribute("class", `rect-x${t}`), e.setAttribute("x", String(o * t + t * l + u)), e.setAttribute("y", "0"), e.setAttribute("width", String(l)), e.setAttribute("height", String(n));
 		});
 	}
-	row(e, t, n, r, i, a) {
-		let o = e, s = n, c = r, l = i, u = a, d = (l + u) * o, f = Math.floor(c / d) + 1, p = document.getElementById("tg_row__body");
-		p && this.syncSvgElements(p, f, "rect", (e, t) => {
-			e.setAttribute("class", `row-y${t}`), e.setAttribute("x", "0"), e.setAttribute("y", String(Math.floor(t * l * o + t * u * o))), e.setAttribute("width", String(s)), e.setAttribute("height", String(l * o)), e.setAttribute("fill", "#ff0000"), e.setAttribute("fill-opacity", "0.125"), e.setAttribute("stroke", "#ff0000"), e.setAttribute("stroke-opacity", "0.5");
+	row(e, t, n) {
+		let { rowTotalHeight: r, rowHeightPx: i } = e, a = Math.floor(n / r) + 1, o = this.elRowBody;
+		o && this.syncSvgElements(o, a, "rect", (e, n) => {
+			e.setAttribute("class", `row-y${n}`), e.setAttribute("x", "0"), e.setAttribute("y", String(Math.floor(n * r))), e.setAttribute("width", String(t)), e.setAttribute("height", String(i));
 		});
 	}
-	rhythm(e, t, n, r) {
-		let i = e, a = t, o = n, s = Math.floor(r / i * a), c = document.getElementById("tg_rhythm__body");
-		c && this.syncSvgElements(c, s, "line", (e, t) => {
-			e.setAttribute("class", `line-y${t}`), e.setAttribute("x1", "0"), e.setAttribute("y1", String(t * i * a / 2)), e.setAttribute("x2", String(o)), e.setAttribute("y2", String(t * i * a / 2)), e.setAttribute("fill", "none"), e.setAttribute("stroke", "#999999"), e.setAttribute("stroke-width", "0.5"), e.setAttribute("stroke-opacity", "0.75");
+	rhythm(e, t, n) {
+		let { fontSize: r, lineHeight: i } = e, a = Math.floor(n / r * i), o = this.elRhythmBody;
+		o && this.syncSvgElements(o, a, "line", (e, n) => {
+			e.setAttribute("class", `line-y${n}`), e.setAttribute("x1", "0"), e.setAttribute("y1", String(n * r * i / 2)), e.setAttribute("x2", String(t)), e.setAttribute("y2", String(n * r * i / 2));
 		});
 	}
 	ruler() {}
@@ -441,19 +448,60 @@ var Y = class {
 	gui() {}
 	keyboard() {}
 	size() {}
-}, Q = class {
-	constructor(e, t, n) {
-		this.unKeyBinds = () => {}, this.utils = e, this.model = t, this.view = n, this.unlistenMedia = this.media(), this.uncheckWindow = this.resize(), this.init();
+};
+//#endregion
+//#region src/gui.ts
+function Q(e, t) {
+	let n = e.user.media, r = n.contents.fontSize[t], i = n.contents.gutter[t];
+	return {
+		fontSize: r === "computed" ? parseFloat(getComputedStyle(document.documentElement).fontSize) : r ?? 16,
+		lineHeight: n.contents.lineHeight[t] ?? 1.5,
+		contentGutter: i === "auto" ? 0 : i ?? 0,
+		columnNum: n.grids.column.num[t] ?? 4,
+		columnGutter: n.grids.column.gutter[t] ?? 1,
+		rowHeight: n.grids.row.height[t] ?? 4,
+		rowGutter: n.grids.row.gutter[t] ?? 1
+	};
+}
+function $(e, t, n) {
+	let r = n ?? window.lil?.GUI;
+	if (!r) return null;
+	let i = e.currentMediaIndex, a = Q(e, i), o = () => {
+		if (!t.currentMedia) return;
+		let e = t.currentMedia;
+		e.contents.fontSize = a.fontSize, e.contents.lineHeight = a.lineHeight, e.contents.gutter = a.contentGutter, e.grids.column.num = a.columnNum, e.grids.column.gutter = a.columnGutter, e.grids.row.height = a.rowHeight, e.grids.row.gutter = a.rowGutter, t.invalidateMediaCalc(), t.render("resize");
+	}, s = new r({ title: "typegrid" });
+	s.domElement.style.zIndex = "99901";
+	let c = s.addFolder("Contents"), l = s.addFolder("Column"), u = s.addFolder("Row");
+	return c.add(a, "fontSize").min(8).max(40).step(1).name("font-size (px)").onChange(o), c.add(a, "lineHeight").min(1).max(3).step(.025).name("line-height").onChange(o), c.add(a, "contentGutter").min(0).max(20).step(.25).name("side gutter (rem)").onChange(o), l.add(a, "columnNum").min(1).max(24).step(1).name("columns").onChange(o), l.add(a, "columnGutter").min(0).max(10).step(.25).name("gutter (rem)").onChange(o), u.add(a, "rowHeight").min(1).max(20).step(.125).name("height (rem)").onChange(o), u.add(a, "rowGutter").min(0).max(10).step(.125).name("gutter (rem)").onChange(o), s.add({ exportJson() {
+		let t = JSON.parse(JSON.stringify(e.user)), n = i;
+		t.media.contents.fontSize[n] = a.fontSize, t.media.contents.lineHeight[n] = a.lineHeight, t.media.contents.gutter[n] = a.contentGutter, t.media.grids.column.num[n] = a.columnNum, t.media.grids.column.gutter[n] = a.columnGutter, t.media.grids.row.height[n] = a.rowHeight, t.media.grids.row.gutter[n] = a.rowGutter;
+		let r = new Blob([JSON.stringify(t, null, 4)], { type: "application/json" }), o = URL.createObjectURL(r), s = document.createElement("a");
+		s.href = o, s.download = "typegrid.json", document.body.appendChild(s), s.click(), document.body.removeChild(s), URL.revokeObjectURL(o);
+	} }, "exportJson").name("Export JSON"), {
+		updateMedia(t) {
+			i = t, Object.assign(a, Q(e, t)), s.controllersRecursive().forEach((e) => e.updateDisplay());
+		},
+		destroy() {
+			s.destroy();
+		}
+	};
+}
+//#endregion
+//#region src/controller.ts
+var ee = class {
+	constructor(e, t, n, r) {
+		this.unKeyBinds = () => {}, this.gui = null, this.utils = e, this.model = t, this.view = n, this.guiConstructor = r, this.unlistenMedia = this.media(), this.uncheckWindow = this.resize(), this.init();
 	}
 	init() {
 		let e = () => {
-			this.view.render("init"), this.unKeyBinds = this.utils.keyBinds(this.model, this.view);
+			this.view.render("init"), this.unKeyBinds = this.utils.keyBinds(this.model, this.view), this.gui = $(this.model, this.view, this.guiConstructor);
 		};
-		document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e) : e();
+		document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 	}
 	media() {
 		return this.utils.listenMediaQueries(this.model, this.view, (e) => {
-			this.view.render("media", e);
+			this.view.render("media", e), this.gui?.updateMedia(e);
 		});
 	}
 	resize() {
@@ -462,24 +510,25 @@ var Y = class {
 		});
 	}
 	destroy() {
-		this.unlistenMedia(), this.uncheckWindow(), this.unKeyBinds();
+		this.unlistenMedia(), this.uncheckWindow(), this.unKeyBinds(), this.gui?.destroy();
 	}
 };
 //#endregion
 //#region src/main.ts
-function $() {
-	let e = null, t = {
+function te(e) {
+	let t = null, n = null, r = {
 		init() {
-			J((t) => {
-				let n = new Y(t);
-				e = new Q(h, n, new Z(h, n));
-			});
+			n = new AbortController(), J((r) => {
+				n = null;
+				let i = new Y(r);
+				t = new ee(h, i, new Z(h, i), e?.gui);
+			}, n.signal);
 		},
 		destroy() {
-			e &&= (e.destroy(), null);
+			n?.abort(), n = null, t &&= (t.destroy(), null);
 		}
 	};
-	return t.init(), t;
+	return r.init(), r;
 }
 //#endregion
-export { $ as typegrid };
+export { te as typegrid };

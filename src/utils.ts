@@ -225,6 +225,7 @@ export function listenMediaQueries(
 
   const myRender = (newMediaQueryIndex: number): void => {
     myMediaQueryIndex = newMediaQueryIndex;
+    model.currentMediaIndex = newMediaQueryIndex;
     console.info(
       `[typegrid] media query matched: ${myDevices[myMediaQueryIndex]} (index: ${myMediaQueryIndex})`,
     );
@@ -255,6 +256,7 @@ export function listenMediaQueries(
     // 初期チェック
     if (mql.matches && myMediaQueryIndex !== myIndex) {
       model.currentMedia = model.getJsonValues(myIndex);
+      model.currentMediaIndex = myIndex;
       myMediaQueryIndex = myIndex;
     }
   });
