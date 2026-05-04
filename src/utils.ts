@@ -96,12 +96,7 @@ export function getElementTagStyle(elem: 'html' | 'body'): CSSStyleDeclaration {
 export function convertHex(color: string): string {
   const match = /rgba?\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),?\s*([.\d]+)?\)/.exec(color);
   if (!match) return '';
-  let hex = '';
-  for (let i = 1; i <= 3; i++) {
-    const part = Number(match[i]).toString(16);
-    hex += part.length === 1 ? `0${part}` : part;
-  }
-  return hex;
+  return [1, 2, 3].map(i => Number(match[i]).toString(16).padStart(2, '0')).join('');
 }
 
 /**
@@ -176,7 +171,7 @@ export function setSvgSizes(targetSvgId: string, currentWidth: number, currentHe
 
 /** 要素の子ノードをすべて削除する */
 export function reset(resetElem: Element): void {
-  resetElem.textContent = null;
+  resetElem.replaceChildren();
 }
 
 /**
@@ -288,31 +283,31 @@ export function listenMediaQueries(
 }
 
 /**
- * window resize イベントにデバウンスリスナーを登録する。
- * @returns リスナー解除用の uncheckWindowSize 関数
+ * ResizeObserver でドキュメントのサイズ変化を監視する。
+ * requestAnimationFrame で1フレームに1回だけコールバックを呼ぶ。
+ * @returns 監視解除用の uncheckWindowSize 関数
  */
 export function checkWindowSize(
   model: TypegridModel,
   _view: TypegridView,
   callBack: () => void,
 ): () => void {
-  let timerResize = -1;
+  let rafId = -1;
 
-  const resizeWindowListener = (): void => {
-    if (timerResize === -1) {
-      timerResize = window.setTimeout(() => {
-        model.debug.count.resize += 1;
-        callBack();
-        clearTimeout(timerResize);
-        timerResize = -1;
-      }, 300);
-    }
-  };
+  const observer = new ResizeObserver(() => {
+    if (rafId !== -1) return;
+    rafId = requestAnimationFrame(() => {
+      model.debug.count.resize += 1;
+      callBack();
+      rafId = -1;
+    });
+  });
 
-  window.addEventListener('resize', resizeWindowListener, false);
+  observer.observe(document.documentElement);
 
   return function uncheckWindowSize(): void {
-    window.removeEventListener('resize', resizeWindowListener, false);
+    if (rafId !== -1) cancelAnimationFrame(rafId);
+    observer.disconnect();
   };
 }
 
@@ -320,14 +315,15 @@ export function checkWindowSize(
  * キーボードショートカットのリスナーを登録する。
  * g キー: グリッド表示/非表示トグル
  * p キー: fixed/absolute 切替
+ * @returns リスナー解除用の unKeyBinds 関数
  */
-export function keyBinds(model: TypegridModel, _view: TypegridView): void {
+export function keyBinds(model: TypegridModel, _view: TypegridView): () => void {
   let displayStatus = model.visibility;
   let fixedStatus = model.fixed;
   const all = document.getElementById('tg_all');
-  if (!all) return;
+  if (!all) return () => {};
 
-  document.body.addEventListener('keydown', (event: KeyboardEvent) => {
+  const handler = (event: KeyboardEvent): void => {
     if (event.key === 'g') {
       displayStatus = !displayStatus;
       all.style.display = displayStatus ? 'block' : 'none';
@@ -336,7 +332,13 @@ export function keyBinds(model: TypegridModel, _view: TypegridView): void {
       fixedStatus = !fixedStatus;
       all.style.position = fixedStatus ? 'fixed' : 'absolute';
     }
-  });
+  };
+
+  document.body.addEventListener('keydown', handler);
+
+  return function unKeyBinds(): void {
+    document.body.removeEventListener('keydown', handler);
+  };
 }
 
 // -----------------------------------------------------------------------
