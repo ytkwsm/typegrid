@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>typegrid.js — GUI demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="./_assets/css/style.css" type="text/css" media="screen,projection" />
+<style>
+  html {
+    font-size: 16px;
+    line-height: 1.75;
+    color: #222;
+  }
+  body {
+    background: #fff;
+    padding: 0;
+    margin: 0;
+  }
+  #wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 4rem 2rem 8rem;
+  }
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    letter-spacing: 0.02em;
+  }
+  .tagline {
+    color: #666;
+    margin: 0 0 3rem;
+  }
+  .usage {
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 1.5rem 2rem;
+    margin: 0 0 3rem;
+    font-size: 0.875rem;
+  }
+  .usage h2 {
+    font-size: 1rem;
+    margin: 0 0 0.75rem;
+  }
+  .usage code {
+    font-family: monospace;
+    background: #e8e8e8;
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+  }
+  .usage pre {
+    margin: 0.5rem 0;
+    background: #222;
+    color: #e8e8e8;
+    padding: 1rem 1.25rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  .usage pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+  }
+  .wysiwyg h2 {
+    font-size: 1.5rem;
+    margin: 3rem 0 0.5rem;
+    font-weight: 700;
+  }
+  .wysiwyg p {
+    margin: 0 0 1.75rem;
+  }
+</style>
+
+<!--
+  方法A: CDN script タグで lil-gui を読み込む（追加コードなし）
+  typegrid() を呼ぶだけで GUI が自動的に有効になる。
+-->
+<script src="https://cdn.jsdelivr.net/npm/lil-gui@0.20"></script>
+<script src="./typegrid.iife.js"></script>
+<script>
+  // IIFE グローバル: window.typegrid.typegrid()
+  typegrid.typegrid();
+</script>
+
+<!--
+  方法B: JS import で渡す場合（バンドル環境向け）
+  import { GUI } from 'lil-gui';
+  import { typegrid } from './typegrid.js';
+  typegrid({ gui: GUI });
+-->
+
+</head>
+
+<body>
+
+<div id="wrap">
+  <h1>typegrid.js</h1>
+  <p class="tagline">GUI パネル付きデモ。右上のパネルでグリッドをリアルタイム調整できます。</p>
+
+  <div class="usage">
+    <h2>使い方</h2>
+    <p><strong>方法A — CDN script タグ（このページで使用）</strong><br>
+    lil-gui の script タグを追加するだけ。追加コードは不要。</p>
+    <pre><code>&lt;!-- lil-gui を CDN から読み込む --&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/lil-gui@0.20"&gt;&lt;/script&gt;
+&lt;script src="typegrid.iife.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  typegrid.typegrid(); // GUI が自動的に有効になる
+&lt;/script&gt;</code></pre>
+
+    <p style="margin-top:1.25rem"><strong>方法B — JS import（バンドル環境）</strong></p>
+    <pre><code>import { GUI } from 'lil-gui';
+import { typegrid } from './typegrid.js';
+
+typegrid({ gui: GUI }); // GUI コンストラクタを明示的に渡す</code></pre>
+
+    <p style="margin-top:1.25rem">
+      右上の <code>typegrid</code> パネルで値を変更すると描画がリアルタイムで更新されます。<br>
+      調整が終わったら <strong>Export JSON</strong> ボタンで設定を <code>typegrid.json</code> としてダウンロードできます。
+    </p>
+  </div>
+
+  <div class="wysiwyg" id="content">
+    <h2>サンプルコンテンツ</h2>
+    <p>山路を登りながら、こう考えた。</p>
+    <p>智に働けば角が立つ。情に棹させば流される。意地を通せば窮屈だ。とかくに人の世は住みにくい。</p>
+    <p>住みにくさが高じると、安い所へ引き越したくなる。どこへ越しても住みにくいと悟った時、詩が生れて、画が出来る。</p>
+    <h2>見出し2</h2>
+    <p>人の世を作ったものは神でもなければ鬼でもない。やはり向う三軒両隣りにちらちらするただの人である。ただの人が作った人の世が住みにくいからとて、越す国はあるまい。あれば人でなしの国へ行くばかりだ。人でなしの国は人の世よりもなお住みにくかろう。</p>
+    <p>越す事のならぬ世が住みにくければ、住みにくい所をどれほどか、寛容て、束の間の命を、束の間でも住みよくせねばならぬ。ここに詩人という天職が出来て、ここに画家という使命が降る。あらゆる芸術の士は人の世を長閑にし、人の心を豊かにするが故に尊とい。</p>
+    <p>住みにくき世から、住みにくき煩いを引き抜いて、ありがたい世界をまのあたりに写すのが詩である、画である。あるは音楽と彫刻である。こまかに云えば写さないでもよい。ただまのあたりに見れば、そこに詩も生き、歌も湧く。着想を紙に落さぬとも鏘の音は胸裏に起る。</p>
+    <p>底本：「夏目漱石全集3」ちくま文庫、筑摩書房</p>
+  </div>
+</div>
+
+</body>
+</html>
