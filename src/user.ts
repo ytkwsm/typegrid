@@ -14,7 +14,7 @@ import type { TypegridConfig } from './types/typegrid.d.ts';
  *
  * @param successCallback - JSON取得成功時に呼ばれるコールバック
  */
-export function getJSON(successCallback: (json: TypegridConfig) => void): void {
+export async function getJSON(successCallback: (json: TypegridConfig) => void): Promise<void> {
   const origin = tgFilePathOrigin();
   // 本番ビルド: スクリプトURLから "typegrid.js" を取り除いてJSONパスを解決
   // 開発サーバー(Vite ESM): currentScript.src が typegrid.js を含まないため / にフォールバック
@@ -23,19 +23,13 @@ export function getJSON(successCallback: (json: TypegridConfig) => void): void {
     : '/';
   const jsonPath = basePath + lib.json.file;
 
-  fetch(jsonPath)
-    .then((response) => {
-      if (response.ok) {
-        return response.json() as Promise<TypegridConfig>;
-      }
-      throw new Error(msg.get.notfound);
-    })
-    .then(successCallback)
-    .catch((error: unknown) => {
-      if (error instanceof Error) {
-        console.error(`[${lib.name}] Failed to load typegrid.json:`, error.message);
-      } else {
-        console.error(`[${lib.name}] Failed to load typegrid.json:`, error);
-      }
-    });
+  try {
+    const response = await fetch(jsonPath);
+    if (!response.ok) throw new Error(msg.get.notfound);
+    const json = await response.json() as TypegridConfig;
+    successCallback(json);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[${lib.name}] Failed to load typegrid.json:`, message);
+  }
 }

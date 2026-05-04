@@ -22,6 +22,8 @@ export class TypegridController {
   /** リスナー解除関数（destroy 時に呼び出す） */
   private readonly unlistenMedia: () => void;
   private readonly uncheckWindow: () => void;
+  // keyBinds は tg_all がDOMに追加された後に登録するため、noop で初期化して init 内で上書きする
+  private unKeyBinds: () => void = () => {};
 
   constructor(utilsModule: typeof utils, model: TypegridModel, view: TypegridView) {
     this.utils = utilsModule;
@@ -30,14 +32,15 @@ export class TypegridController {
 
     this.unlistenMedia = this.media();
     this.uncheckWindow = this.resize();
-    this.init();
-    this.keyBinds();
+    this.init(); // keyBinds は init 内で tg_all 生成後に登録する
   }
 
   /** DOMContentLoaded または即時に view.render('init') を呼ぶ */
   private init(): void {
     const callback = (): void => {
       this.view.render('init');
+      // tg_all が DOM に追加された後にキーバインドを登録する
+      this.unKeyBinds = this.utils.keyBinds(this.model, this.view);
     };
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', callback);
@@ -68,10 +71,6 @@ export class TypegridController {
     return this.utils.checkWindowSize(this.model, this.view, renderResize);
   }
 
-  private keyBinds(): void {
-    this.utils.keyBinds(this.model, this.view);
-  }
-
   /**
    * 登録済みのすべてのリスナーを解除する。
    * アンマウント時に呼び出す。
@@ -79,5 +78,6 @@ export class TypegridController {
   destroy(): void {
     this.unlistenMedia();
     this.uncheckWindow();
+    this.unKeyBinds();
   }
 }

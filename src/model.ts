@@ -80,6 +80,10 @@ export class TypegridModel {
    */
   getJsonValues(myIndex: number): DeviceSnapshot {
     const myMedia = this.user.media;
+    const deviceCount = myMedia.devices.length;
+    if (myIndex < 0 || myIndex >= deviceCount) {
+      throw new RangeError(`[typegrid] getJsonValues: index ${myIndex} is out of range (0–${deviceCount - 1})`);
+    }
     return {
       devices: myMedia.devices[myIndex]!,
       contents: {
