@@ -19,4 +19,13 @@ export default defineConfig({
   // 開発サーバー: index.html をルートで配信
   root: '.',
   publicDir: 'public',
+  test: {
+    environment: 'jsdom',
+    include: ['src/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.test.ts', 'src/types/**'],
+    },
+  },
 });
