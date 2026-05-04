@@ -7,6 +7,7 @@
 import { tgFilePathOrigin } from './snippet.js';
 import { lib, msg } from './config.js';
 import type { TypegridConfig } from './types/typegrid.d.ts';
+import { assertConfig } from './validate.js';
 
 /**
  * typegrid.json を取得して successCallback に渡す。
@@ -26,7 +27,8 @@ export async function getJSON(successCallback: (json: TypegridConfig) => void): 
   try {
     const response = await fetch(jsonPath);
     if (!response.ok) throw new Error(msg.get.notfound);
-    const json = await response.json() as TypegridConfig;
+    const json: unknown = await response.json();
+    if (!assertConfig(json)) return;
     successCallback(json);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
