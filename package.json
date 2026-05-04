@@ -20,7 +20,7 @@
   "license": "MIT",
   "homepage": "https://github.com/ytkwsm/typegrid",
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10"
   }
 }
