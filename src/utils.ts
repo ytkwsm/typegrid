@@ -48,11 +48,11 @@ export function checkBrowserHeight(): boolean {
   return viewportHeight < documentHeight;
 }
 
-/** wrapper 要素の height をドキュメントの高さに合わせる */
-export function setWrapperHeight(): void {
+/** wrapper 要素の height をドキュメントの高さに合わせる。h を渡すと再計算を省略する */
+export function setWrapperHeight(h?: number): void {
   const target = document.getElementById('tg_wrapper');
   if (!target) return;
-  target.style.height = `${height()}px`;
+  target.style.height = `${h ?? height()}px`;
 }
 
 /** ブラウザの横幅（px）を返す */
@@ -161,12 +161,11 @@ export function decisionColumnSizeType(
 // -----------------------------------------------------------------------
 
 /** SVG要素の width / height / viewBox 属性を更新する */
-export function setSvgSizes(targetSvgId: string, currentWidth: number, currentHeight: number): void {
-  const svgAll = document.getElementById(targetSvgId);
-  if (!svgAll) return;
-  svgAll.setAttribute('width', String(currentWidth));
-  svgAll.setAttribute('height', String(currentHeight));
-  svgAll.setAttribute('viewBox', `0 0 ${currentWidth} ${currentHeight}`);
+export function setSvgSizes(target: Element | null, currentWidth: number, currentHeight: number): void {
+  if (!target) return;
+  target.setAttribute('width', String(currentWidth));
+  target.setAttribute('height', String(currentHeight));
+  target.setAttribute('viewBox', `0 0 ${currentWidth} ${currentHeight}`);
 }
 
 /** 要素の子ノードをすべて削除する */

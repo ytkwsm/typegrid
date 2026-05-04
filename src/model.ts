@@ -133,8 +133,8 @@ export class TypegridModel {
     return utils.height();
   }
 
-  wrapperHeight(): void {
-    utils.setWrapperHeight();
+  wrapperHeight(h?: number): void {
+    utils.setWrapperHeight(h);
   }
 
   ua(): void {
