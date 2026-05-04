@@ -365,11 +365,11 @@ var z = class {
 	size() {}
 }, H = class {
 	constructor(e, t, n) {
-		this.utils = e, this.model = t, this.view = n, this.unlistenMedia = this.media(), this.uncheckWindow = this.resize(), this.unKeyBinds = this.keyBinds(), this.init();
+		this.unKeyBinds = () => {}, this.utils = e, this.model = t, this.view = n, this.unlistenMedia = this.media(), this.uncheckWindow = this.resize(), this.init();
 	}
 	init() {
 		let e = () => {
-			this.view.render("init");
+			this.view.render("init"), this.unKeyBinds = this.utils.keyBinds(this.model, this.view);
 		};
 		document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e) : e();
 	}
@@ -382,9 +382,6 @@ var z = class {
 		return this.utils.checkWindowSize(this.model, this.view, () => {
 			this.view.render("resize");
 		});
-	}
-	keyBinds() {
-		return this.utils.keyBinds(this.model, this.view);
 	}
 	destroy() {
 		this.unlistenMedia(), this.uncheckWindow(), this.unKeyBinds();
