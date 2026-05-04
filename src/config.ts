@@ -96,6 +96,9 @@ export const styleBase = `
 #tg_ruler, #tg_setting, #tg_gui {
     pointer-events: auto;
 }
+#tg_grid {
+    contain: layout style paint;
+}
 #tg_layout__body rect {
     fill: var(--tg-color-column);
     fill-opacity: 0.125;
