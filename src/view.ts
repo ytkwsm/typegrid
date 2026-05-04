@@ -71,7 +71,7 @@ export class TypegridView {
     const status = this.model.visibility;
     const target = document.getElementById('tg_all');
     if (!target) return;
-    target.setAttribute('style', `display: ${status ? 'block' : 'none'}`);
+    target.style.display = status ? 'block' : 'none';
   }
 
   render(flg: RenderMode, param1?: number): void {
