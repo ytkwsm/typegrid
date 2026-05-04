@@ -6,3 +6,5 @@ nbproject/
 /node_modules/
 /**/**.scssc
 /dest/js/typegrid.js
+.claude/
+.playwright-mcp/
