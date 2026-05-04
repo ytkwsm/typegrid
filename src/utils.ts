@@ -222,7 +222,7 @@ export function listenMediaQueries(
   const myUnit = model.user.general.unit.breakPoints;
 
   let myMediaQueryIndex = -1;
-  const myMediaQueries: (MediaQueryList & { typegridIndex?: number })[] = [];
+  const mediaQueryMap = new Map<MediaQueryList, number>();
 
   const myRender = (newMediaQueryIndex: number): void => {
     myMediaQueryIndex = newMediaQueryIndex;
@@ -232,22 +232,11 @@ export function listenMediaQueries(
     callBack(myMediaQueryIndex);
   };
 
-  const checkMediaQuery = (mql: MediaQueryList & { typegridIndex?: number }): number => {
-    if (mql.matches) {
-      const newIndex = mql.typegridIndex;
-      if (newIndex !== undefined && !isNaN(newIndex) && myMediaQueryIndex !== newIndex) {
-        return newIndex;
-      }
-    }
-    return -1;
-  };
-
   const mediaQueryListener = (event: MediaQueryListEvent): void => {
-    // event.target は MediaQueryList
-    const mql = event.target as (MediaQueryList & { typegridIndex?: number }) | null;
-    if (!mql) return;
-    const newIndex = checkMediaQuery(mql);
-    if (newIndex > -1) {
+    const mql = event.target as MediaQueryList | null;
+    if (!mql || !mql.matches) return;
+    const newIndex = mediaQueryMap.get(mql);
+    if (newIndex !== undefined && myMediaQueryIndex !== newIndex) {
       myRender(newIndex);
     }
   };
@@ -258,27 +247,25 @@ export function listenMediaQueries(
     if (nextBreakPoint !== undefined) {
       queryParts.push(`and (max-width: ${nextBreakPoint - 1}${myUnit})`);
     }
-    const mql = window.matchMedia(queryParts.join(' ')) as MediaQueryList & { typegridIndex?: number };
-    mql.typegridIndex = myIndex;
+    const mql = window.matchMedia(queryParts.join(' '));
+    mediaQueryMap.set(mql, myIndex);
 
     // 非推奨の addListener() の代わりに addEventListener('change', ...) を使用
     mql.addEventListener('change', mediaQueryListener);
-    myMediaQueries.push(mql);
 
     // 初期チェック
-    if (mql.matches) {
-      const newIndex = checkMediaQuery(mql);
-      if (newIndex > -1) {
-        model.currentMedia = model.getJsonValues(newIndex);
-      }
+    if (mql.matches && myMediaQueryIndex !== myIndex) {
+      model.currentMedia = model.getJsonValues(myIndex);
+      myMediaQueryIndex = myIndex;
     }
   });
 
   // 解除関数を返す
   return function unlistenMediaQueries(): void {
-    myMediaQueries.forEach((mql) => {
+    mediaQueryMap.forEach((_index, mql) => {
       mql.removeEventListener('change', mediaQueryListener);
     });
+    mediaQueryMap.clear();
   };
 }
 

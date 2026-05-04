@@ -37,16 +37,21 @@ export interface TypegridAPI {
  */
 export function typegrid(): TypegridAPI {
   let controller: TypegridController | null = null;
+  let fetchAbort: AbortController | null = null;
 
   const api: TypegridAPI = {
     init() {
+      fetchAbort = new AbortController();
       getJSON((json: TypegridConfig) => {
+        fetchAbort = null;
         const model = new TypegridModel(json);
         const view  = new TypegridView(utils, model);
         controller  = new TypegridController(utils, model, view);
-      });
+      }, fetchAbort.signal);
     },
     destroy() {
+      fetchAbort?.abort();
+      fetchAbort = null;
       if (controller) {
         controller.destroy();
         controller = null;

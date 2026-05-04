@@ -60,6 +60,11 @@ export const style = {
 };
 
 export const styleBase = `
+:root {
+    --tg-color-column: #ff0000;
+    --tg-color-row: #ff0000;
+    --tg-color-rhythm: #999999;
+}
 #tg_all {
     position: absolute;
     top: 0;
@@ -90,6 +95,24 @@ export const styleBase = `
 }
 #tg_ruler, #tg_setting, #tg_gui {
     pointer-events: auto;
+}
+#tg_layout__body rect {
+    fill: var(--tg-color-column);
+    fill-opacity: 0.125;
+    stroke: var(--tg-color-column);
+    stroke-opacity: 0.5;
+}
+#tg_row__body rect {
+    fill: var(--tg-color-row);
+    fill-opacity: 0.125;
+    stroke: var(--tg-color-row);
+    stroke-opacity: 0.5;
+}
+#tg_rhythm__body line {
+    fill: none;
+    stroke: var(--tg-color-rhythm);
+    stroke-width: 0.5;
+    stroke-opacity: 0.75;
 }
 `;
 
