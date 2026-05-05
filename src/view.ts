@@ -61,29 +61,32 @@ export class TypegridView {
 
   /**
    * SVG子要素を差分更新する。
-   * 既存要素の属性を上書きし、不足分を追加、余剰分を削除する。
+   * isNew=false（既存要素）は変化する属性のみ更新し、静的属性の setAttribute を省略する。
+   * isNew=true（新規要素）は全属性を設定する。
    */
   private syncSvgElements<T extends SVGElement>(
     container: Element,
     count: number,
     tagName: string,
-    setAttrs: (el: T, i: number) => void,
+    setAttrs: (el: T, i: number, isNew: boolean) => void,
   ): void {
     const children = container.children;
+    const existing = Math.min(children.length, count);
 
-    for (let i = 0; i < Math.min(children.length, count); i++) {
-      setAttrs(children[i] as T, i);
+    for (let i = 0; i < existing; i++) {
+      setAttrs(children[i] as T, i, false);
     }
 
     const frag = document.createDocumentFragment();
     for (let i = children.length; i < count; i++) {
       const el = document.createElementNS(SVG_NS, tagName) as T;
-      setAttrs(el, i);
+      setAttrs(el, i, true);
       frag.appendChild(el);
     }
     if (frag.childNodes.length > 0) container.appendChild(frag);
 
-    while (container.children.length > count) {
+    let excess = container.children.length - count;
+    while (excess-- > 0) {
       container.lastElementChild!.remove();
     }
   }
@@ -154,8 +157,12 @@ export class TypegridView {
     } else if (flg === 'media') {
       if (param1 === undefined) return;
       this.currentMedia = this.model.getJsonValues(param1);
-      this.cachedFontSize   = null;
-      this.cachedMediaCalc  = null;
+      this.cachedFontSize  = null;
+      this.cachedMediaCalc = null;
+      // コンテナをリセットして次の resize でフル再描画（isNew=true）する
+      this.elLayoutBody?.replaceChildren();
+      this.elRowBody?.replaceChildren();
+      this.elRhythmBody?.replaceChildren();
     }
   }
 
@@ -181,10 +188,12 @@ export class TypegridView {
     const targetInsert = this.elLayoutBody;
     if (!targetInsert) return;
 
-    this.syncSvgElements<SVGRectElement>(targetInsert, columnNum, 'rect', (rect, cnt) => {
-      rect.setAttribute('class', `rect-x${cnt}`);
+    this.syncSvgElements<SVGRectElement>(targetInsert, columnNum, 'rect', (rect, cnt, isNew) => {
+      if (isNew) {
+        rect.setAttribute('class', `rect-x${cnt}`);
+        rect.setAttribute('y', '0');
+      }
       rect.setAttribute('x', String(cnt * columnStep + gutterOutsideWidthOneSide));
-      rect.setAttribute('y', '0');
       rect.setAttribute('width', columnWidthStr);
       rect.setAttribute('height', heightStr);
     });
@@ -199,12 +208,14 @@ export class TypegridView {
     const targetInsert = this.elRowBody;
     if (!targetInsert) return;
 
-    this.syncSvgElements<SVGRectElement>(targetInsert, loopNum, 'rect', (rect, cnt) => {
-      rect.setAttribute('class', `row-y${cnt}`);
-      rect.setAttribute('x', '0');
-      rect.setAttribute('y', String(Math.floor(cnt * rowTotalHeight)));
+    this.syncSvgElements<SVGRectElement>(targetInsert, loopNum, 'rect', (rect, cnt, isNew) => {
+      if (isNew) {
+        rect.setAttribute('class', `row-y${cnt}`);
+        rect.setAttribute('x', '0');
+        rect.setAttribute('y', String(Math.floor(cnt * rowTotalHeight)));
+        rect.setAttribute('height', rowHeightStr);
+      }
       rect.setAttribute('width', widthStr);
-      rect.setAttribute('height', rowHeightStr);
     });
   }
 
@@ -217,13 +228,15 @@ export class TypegridView {
     const targetInsert = this.elRhythmBody;
     if (!targetInsert) return;
 
-    this.syncSvgElements<SVGLineElement>(targetInsert, loopNum, 'line', (line, cnt) => {
-      const y = String(cnt * rhythmStep);
-      line.setAttribute('class', `line-y${cnt}`);
-      line.setAttribute('x1', '0');
-      line.setAttribute('y1', y);
+    this.syncSvgElements<SVGLineElement>(targetInsert, loopNum, 'line', (line, cnt, isNew) => {
+      if (isNew) {
+        const y = String(cnt * rhythmStep);
+        line.setAttribute('class', `line-y${cnt}`);
+        line.setAttribute('x1', '0');
+        line.setAttribute('y1', y);
+        line.setAttribute('y2', y);
+      }
       line.setAttribute('x2', widthStr);
-      line.setAttribute('y2', y);
     });
   }
 

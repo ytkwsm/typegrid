@@ -380,14 +380,16 @@ var Y = class {
 		this.utils.reset(e);
 	}
 	syncSvgElements(e, t, n, r) {
-		let i = e.children;
-		for (let e = 0; e < Math.min(i.length, t); e++) r(i[e], e);
-		let a = document.createDocumentFragment();
+		let i = e.children, a = Math.min(i.length, t);
+		for (let e = 0; e < a; e++) r(i[e], e, !1);
+		let o = document.createDocumentFragment();
 		for (let e = i.length; e < t; e++) {
 			let t = document.createElementNS(X, n);
-			r(t, e), a.appendChild(t);
+			r(t, e, !0), o.appendChild(t);
 		}
-		for (a.childNodes.length > 0 && e.appendChild(a); e.children.length > t;) e.lastElementChild.remove();
+		o.childNodes.length > 0 && e.appendChild(o);
+		let s = e.children.length - t;
+		for (; s-- > 0;) e.lastElementChild.remove();
 	}
 	invalidateMediaCalc() {
 		this.cachedFontSize = null, this.cachedMediaCalc = null;
@@ -420,28 +422,31 @@ var Y = class {
 		} else if (e === "change") this.unit();
 		else if (e === "media") {
 			if (t === void 0) return;
-			this.currentMedia = this.model.getJsonValues(t), this.cachedFontSize = null, this.cachedMediaCalc = null;
+			this.currentMedia = this.model.getJsonValues(t), this.cachedFontSize = null, this.cachedMediaCalc = null, this.elLayoutBody?.replaceChildren(), this.elRowBody?.replaceChildren(), this.elRhythmBody?.replaceChildren();
 		}
 	}
 	base() {}
 	unit() {}
 	layout(e, t, n) {
 		let { fontSize: r, columnNum: i, sizeChar: a, gutterBaseWidth: o, gutterTotal: s, gutterSideInstallments: c } = e, l = this.utils.decisionColumnSizeType(r, a, t, i, s, c), u = (t - (s + l * i)) / 2, d = o + l, f = String(l), p = String(n), m = this.elLayoutBody;
-		m && this.syncSvgElements(m, i, "rect", (e, t) => {
-			e.setAttribute("class", `rect-x${t}`), e.setAttribute("x", String(t * d + u)), e.setAttribute("y", "0"), e.setAttribute("width", f), e.setAttribute("height", p);
+		m && this.syncSvgElements(m, i, "rect", (e, t, n) => {
+			n && (e.setAttribute("class", `rect-x${t}`), e.setAttribute("y", "0")), e.setAttribute("x", String(t * d + u)), e.setAttribute("width", f), e.setAttribute("height", p);
 		});
 	}
 	row(e, t, n) {
 		let { rowTotalHeight: r, rowHeightPx: i } = e, a = Math.floor(n / r) + 1, o = String(t), s = String(i), c = this.elRowBody;
-		c && this.syncSvgElements(c, a, "rect", (e, t) => {
-			e.setAttribute("class", `row-y${t}`), e.setAttribute("x", "0"), e.setAttribute("y", String(Math.floor(t * r))), e.setAttribute("width", o), e.setAttribute("height", s);
+		c && this.syncSvgElements(c, a, "rect", (e, t, n) => {
+			n && (e.setAttribute("class", `row-y${t}`), e.setAttribute("x", "0"), e.setAttribute("y", String(Math.floor(t * r))), e.setAttribute("height", s)), e.setAttribute("width", o);
 		});
 	}
 	rhythm(e, t, n) {
 		let { fontSize: r, lineHeight: i } = e, a = Math.floor(n / r * i), o = r * i / 2, s = String(t), c = this.elRhythmBody;
-		c && this.syncSvgElements(c, a, "line", (e, t) => {
-			let n = String(t * o);
-			e.setAttribute("class", `line-y${t}`), e.setAttribute("x1", "0"), e.setAttribute("y1", n), e.setAttribute("x2", s), e.setAttribute("y2", n);
+		c && this.syncSvgElements(c, a, "line", (e, t, n) => {
+			if (n) {
+				let n = String(t * o);
+				e.setAttribute("class", `line-y${t}`), e.setAttribute("x1", "0"), e.setAttribute("y1", n), e.setAttribute("y2", n);
+			}
+			e.setAttribute("x2", s);
 		});
 	}
 	ruler() {}
