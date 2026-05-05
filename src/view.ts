@@ -14,22 +14,16 @@
 import * as utils from './utils.js';
 import type { TypegridModel } from './model.js';
 import type { DeviceSnapshot } from './types/typegrid.d.ts';
+import {
+  type MediaCalcCache,
+  type ColumnRect,
+  type RowRect,
+  type RhythmLine,
+  buildMediaCalcCache,
+  computeGridLayout,
+} from './core/calc.js';
 
 type RenderMode = 'init' | 'resize' | 'change' | 'media';
-
-/** メディアが変わった時のみ再計算するレイアウト定数のキャッシュ */
-type MediaCalcCache = {
-  fontSize: number;
-  lineHeight: number;
-  columnNum: number;
-  sizeChar: 'fluid' | number;
-  gutterBaseWidth: number;
-  gutterTotal: number;
-  gutterSideEach: number;
-  gutterSideInstallments: number;
-  rowTotalHeight: number;   // (rowHeight + rowGutter) * fontSize — 行間隔（y位置計算用）
-  rowHeightPx: number;      // rowHeight * fontSize — 行の高さ（rect height用）
-};
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -124,32 +118,17 @@ export class TypegridView {
         this.cachedFontSize = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, 'html');
       }
       if (this.cachedMediaCalc === null) {
-        const fontSize    = this.cachedFontSize;
-        const columnNum   = this.currentMedia.grids.column.num;
-        const gutter      = this.currentMedia.grids.column.gutter;
-        const gutterSide  = this.currentMedia.contents.gutter;
-        const rowHeight   = this.currentMedia.grids.row.height;
-        const rowGutter   = this.currentMedia.grids.row.gutter;
-        const gutterBaseWidth        = fontSize * gutter;
-        const gutterTotal            = gutterBaseWidth * columnNum - gutterBaseWidth;
-        const gutterSideEach         = this.utils.decisionGutterSideType(gutterSide, fontSize);
-        const gutterSideInstallments = (gutterSideEach * 2) / columnNum;
-        this.cachedMediaCalc = {
-          fontSize, lineHeight: this.currentMedia.contents.lineHeight,
-          columnNum, sizeChar: this.currentMedia.grids.column.sizeChar,
-          gutterBaseWidth, gutterTotal, gutterSideEach, gutterSideInstallments,
-          rowTotalHeight: (rowHeight + rowGutter) * fontSize,
-          rowHeightPx:    rowHeight * fontSize,
-        };
+        this.cachedMediaCalc = buildMediaCalcCache(this.currentMedia, this.cachedFontSize);
       }
       const calc         = this.cachedMediaCalc;
       const renderWidth  = this.model.width();
       const renderHeight = this.utils.height();
       this.model.wrapperHeight(renderHeight);
       this.utils.setSvgSizes(this.elSvgGrid, renderWidth, renderHeight);
-      this.rhythm(calc, renderWidth, renderHeight);
-      this.row(calc, renderWidth, renderHeight);
-      this.layout(calc, renderWidth, renderHeight);
+      const gridLayout = computeGridLayout(calc, renderWidth, renderHeight);
+      this.rhythm(gridLayout.rhythmLines);
+      this.row(gridLayout.rows);
+      this.layout(gridLayout.columns);
       this.base();
       this.unit();
     } else if (flg === 'change') {
@@ -174,69 +153,51 @@ export class TypegridView {
     // TODO: 実装予定
   }
 
-  private layout(calc: MediaCalcCache, width: number, height: number): void {
-    const { fontSize, columnNum, sizeChar, gutterBaseWidth, gutterTotal, gutterSideInstallments } = calc;
-    const columnWidth               = this.utils.decisionColumnSizeType(
-      fontSize, sizeChar, width, columnNum, gutterTotal, gutterSideInstallments,
-    );
-    const widthAll                  = gutterTotal + columnWidth * columnNum;
-    const gutterOutsideWidthOneSide = (width - widthAll) / 2;
-    const columnStep                = gutterBaseWidth + columnWidth;
-    const columnWidthStr            = String(columnWidth);
-    const heightStr                 = String(height);
-
+  private layout(columns: ColumnRect[]): void {
     const targetInsert = this.elLayoutBody;
     if (!targetInsert) return;
 
-    this.syncSvgElements<SVGRectElement>(targetInsert, columnNum, 'rect', (rect, cnt, isNew) => {
+    this.syncSvgElements<SVGRectElement>(targetInsert, columns.length, 'rect', (rect, i, isNew) => {
+      const col = columns[i]!;
       if (isNew) {
-        rect.setAttribute('class', `rect-x${cnt}`);
+        rect.setAttribute('class', `rect-x${i}`);
         rect.setAttribute('y', '0');
       }
-      rect.setAttribute('x', String(cnt * columnStep + gutterOutsideWidthOneSide));
-      rect.setAttribute('width', columnWidthStr);
-      rect.setAttribute('height', heightStr);
+      rect.setAttribute('x', String(col.x));
+      rect.setAttribute('width', String(col.width));
+      rect.setAttribute('height', String(col.height));
     });
   }
 
-  private row(calc: MediaCalcCache, width: number, height: number): void {
-    const { rowTotalHeight, rowHeightPx } = calc;
-    const loopNum       = Math.floor(height / rowTotalHeight) + 1;
-    const widthStr      = String(width);
-    const rowHeightStr  = String(rowHeightPx);
-
+  private row(rows: RowRect[]): void {
     const targetInsert = this.elRowBody;
     if (!targetInsert) return;
 
-    this.syncSvgElements<SVGRectElement>(targetInsert, loopNum, 'rect', (rect, cnt, isNew) => {
+    this.syncSvgElements<SVGRectElement>(targetInsert, rows.length, 'rect', (rect, i, isNew) => {
+      const r = rows[i]!;
       if (isNew) {
-        rect.setAttribute('class', `row-y${cnt}`);
+        rect.setAttribute('class', `row-y${i}`);
         rect.setAttribute('x', '0');
-        rect.setAttribute('y', String(Math.floor(cnt * rowTotalHeight)));
-        rect.setAttribute('height', rowHeightStr);
+        rect.setAttribute('y', String(r.y));
+        rect.setAttribute('height', String(r.height));
       }
-      rect.setAttribute('width', widthStr);
+      rect.setAttribute('width', String(r.width));
     });
   }
 
-  private rhythm(calc: MediaCalcCache, width: number, height: number): void {
-    const { fontSize, lineHeight } = calc;
-    const loopNum    = Math.floor((height / fontSize) * lineHeight);
-    const rhythmStep = fontSize * lineHeight / 2;
-    const widthStr   = String(width);
-
+  private rhythm(lines: RhythmLine[]): void {
     const targetInsert = this.elRhythmBody;
     if (!targetInsert) return;
 
-    this.syncSvgElements<SVGLineElement>(targetInsert, loopNum, 'line', (line, cnt, isNew) => {
+    this.syncSvgElements<SVGLineElement>(targetInsert, lines.length, 'line', (line, i, isNew) => {
+      const l = lines[i]!;
       if (isNew) {
-        const y = String(cnt * rhythmStep);
-        line.setAttribute('class', `line-y${cnt}`);
+        line.setAttribute('class', `line-y${i}`);
         line.setAttribute('x1', '0');
-        line.setAttribute('y1', y);
-        line.setAttribute('y2', y);
+        line.setAttribute('y1', String(l.y1));
+        line.setAttribute('y2', String(l.y2));
       }
-      line.setAttribute('x2', widthStr);
+      line.setAttribute('x2', String(l.x2));
     });
   }
 
