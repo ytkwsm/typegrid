@@ -174,22 +174,27 @@ export class TypegridView {
     );
     const widthAll                  = gutterTotal + columnWidth * columnNum;
     const gutterOutsideWidthOneSide = (width - widthAll) / 2;
+    const columnStep                = gutterBaseWidth + columnWidth;
+    const columnWidthStr            = String(columnWidth);
+    const heightStr                 = String(height);
 
     const targetInsert = this.elLayoutBody;
     if (!targetInsert) return;
 
     this.syncSvgElements<SVGRectElement>(targetInsert, columnNum, 'rect', (rect, cnt) => {
       rect.setAttribute('class', `rect-x${cnt}`);
-      rect.setAttribute('x', String(gutterBaseWidth * cnt + cnt * columnWidth + gutterOutsideWidthOneSide));
+      rect.setAttribute('x', String(cnt * columnStep + gutterOutsideWidthOneSide));
       rect.setAttribute('y', '0');
-      rect.setAttribute('width', String(columnWidth));
-      rect.setAttribute('height', String(height));
+      rect.setAttribute('width', columnWidthStr);
+      rect.setAttribute('height', heightStr);
     });
   }
 
   private row(calc: MediaCalcCache, width: number, height: number): void {
     const { rowTotalHeight, rowHeightPx } = calc;
-    const loopNum = Math.floor(height / rowTotalHeight) + 1;
+    const loopNum       = Math.floor(height / rowTotalHeight) + 1;
+    const widthStr      = String(width);
+    const rowHeightStr  = String(rowHeightPx);
 
     const targetInsert = this.elRowBody;
     if (!targetInsert) return;
@@ -198,24 +203,27 @@ export class TypegridView {
       rect.setAttribute('class', `row-y${cnt}`);
       rect.setAttribute('x', '0');
       rect.setAttribute('y', String(Math.floor(cnt * rowTotalHeight)));
-      rect.setAttribute('width', String(width));
-      rect.setAttribute('height', String(rowHeightPx));
+      rect.setAttribute('width', widthStr);
+      rect.setAttribute('height', rowHeightStr);
     });
   }
 
   private rhythm(calc: MediaCalcCache, width: number, height: number): void {
     const { fontSize, lineHeight } = calc;
-    const loopNum = Math.floor((height / fontSize) * lineHeight);
+    const loopNum    = Math.floor((height / fontSize) * lineHeight);
+    const rhythmStep = fontSize * lineHeight / 2;
+    const widthStr   = String(width);
 
     const targetInsert = this.elRhythmBody;
     if (!targetInsert) return;
 
     this.syncSvgElements<SVGLineElement>(targetInsert, loopNum, 'line', (line, cnt) => {
+      const y = String(cnt * rhythmStep);
       line.setAttribute('class', `line-y${cnt}`);
       line.setAttribute('x1', '0');
-      line.setAttribute('y1', String(cnt * fontSize * lineHeight / 2));
-      line.setAttribute('x2', String(width));
-      line.setAttribute('y2', String(cnt * fontSize * lineHeight / 2));
+      line.setAttribute('y1', y);
+      line.setAttribute('x2', widthStr);
+      line.setAttribute('y2', y);
     });
   }
 
