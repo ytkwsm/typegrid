@@ -426,21 +426,22 @@ var Y = class {
 	base() {}
 	unit() {}
 	layout(e, t, n) {
-		let { fontSize: r, columnNum: i, sizeChar: a, gutterBaseWidth: o, gutterTotal: s, gutterSideInstallments: c } = e, l = this.utils.decisionColumnSizeType(r, a, t, i, s, c), u = (t - (s + l * i)) / 2, d = this.elLayoutBody;
-		d && this.syncSvgElements(d, i, "rect", (e, t) => {
-			e.setAttribute("class", `rect-x${t}`), e.setAttribute("x", String(o * t + t * l + u)), e.setAttribute("y", "0"), e.setAttribute("width", String(l)), e.setAttribute("height", String(n));
+		let { fontSize: r, columnNum: i, sizeChar: a, gutterBaseWidth: o, gutterTotal: s, gutterSideInstallments: c } = e, l = this.utils.decisionColumnSizeType(r, a, t, i, s, c), u = (t - (s + l * i)) / 2, d = o + l, f = String(l), p = String(n), m = this.elLayoutBody;
+		m && this.syncSvgElements(m, i, "rect", (e, t) => {
+			e.setAttribute("class", `rect-x${t}`), e.setAttribute("x", String(t * d + u)), e.setAttribute("y", "0"), e.setAttribute("width", f), e.setAttribute("height", p);
 		});
 	}
 	row(e, t, n) {
-		let { rowTotalHeight: r, rowHeightPx: i } = e, a = Math.floor(n / r) + 1, o = this.elRowBody;
-		o && this.syncSvgElements(o, a, "rect", (e, n) => {
-			e.setAttribute("class", `row-y${n}`), e.setAttribute("x", "0"), e.setAttribute("y", String(Math.floor(n * r))), e.setAttribute("width", String(t)), e.setAttribute("height", String(i));
+		let { rowTotalHeight: r, rowHeightPx: i } = e, a = Math.floor(n / r) + 1, o = String(t), s = String(i), c = this.elRowBody;
+		c && this.syncSvgElements(c, a, "rect", (e, t) => {
+			e.setAttribute("class", `row-y${t}`), e.setAttribute("x", "0"), e.setAttribute("y", String(Math.floor(t * r))), e.setAttribute("width", o), e.setAttribute("height", s);
 		});
 	}
 	rhythm(e, t, n) {
-		let { fontSize: r, lineHeight: i } = e, a = Math.floor(n / r * i), o = this.elRhythmBody;
-		o && this.syncSvgElements(o, a, "line", (e, n) => {
-			e.setAttribute("class", `line-y${n}`), e.setAttribute("x1", "0"), e.setAttribute("y1", String(n * r * i / 2)), e.setAttribute("x2", String(t)), e.setAttribute("y2", String(n * r * i / 2));
+		let { fontSize: r, lineHeight: i } = e, a = Math.floor(n / r * i), o = r * i / 2, s = String(t), c = this.elRhythmBody;
+		c && this.syncSvgElements(c, a, "line", (e, t) => {
+			let n = String(t * o);
+			e.setAttribute("class", `line-y${t}`), e.setAttribute("x1", "0"), e.setAttribute("y1", n), e.setAttribute("x2", s), e.setAttribute("y2", n);
 		});
 	}
 	ruler() {}
