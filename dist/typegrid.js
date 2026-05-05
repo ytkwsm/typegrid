@@ -68,10 +68,10 @@ var e = Object.defineProperty, t = (t, n) => {
 	"<div id='tg_settings'></div>",
 	"<div id='tg_gui'><div id='tg_gui__body'></div></div>"
 ].join("") } }, h = /* @__PURE__ */ t({
-	buildMediaQueries: () => I,
+	buildMediaQueries: () => F,
 	calcScrollbarWidth: () => _,
 	checkBrowserHeight: () => v,
-	checkWindowSize: () => P,
+	checkWindowSize: () => N,
 	convertComputedFontSize: () => T,
 	convertHex: () => w,
 	decisionColumnSizeType: () => O,
@@ -81,14 +81,14 @@ var e = Object.defineProperty, t = (t, n) => {
 	getStyles: () => E,
 	height: () => x,
 	insertStyleElem: () => j,
-	keyBinds: () => F,
-	listenMediaQueries: () => N,
+	keyBinds: () => P,
+	listenMediaQueries: () => M,
 	reset: () => A,
 	setSvgSizes: () => k,
 	setWrapperHeight: () => y,
 	ua: () => S,
 	width: () => b,
-	wrapper: () => M
+	wrapper: () => ee
 });
 function g(e) {
 	return n[e];
@@ -157,11 +157,11 @@ function j(e) {
 	let t = document.createElement("style"), n = document.getElementById("tg_all");
 	n && (t.setAttribute("id", "tg_style"), t.textContent = e, n.appendChild(t));
 }
-function M(e, t) {
+function ee(e, t) {
 	let n = document.createElement("div"), r = document.body;
 	n.setAttribute("id", "tg_all"), n.setAttribute("role", "presentation"), n.setAttribute("aria-hidden", "true"), r.appendChild(n), n.innerHTML = e;
 }
-function N(e, t, n) {
+function M(e, t, n) {
 	let r = e.user.media.contents.breakPoints.width.min, i = e.user.media.devices, a = e.user.general.unit.breakPoints, o = -1, s = /* @__PURE__ */ new Map(), c = (t) => {
 		o = t, e.currentMediaIndex = t, console.info(`[typegrid] media query matched: ${i[o]} (index: ${o})`), n(o);
 	}, l = (e) => {
@@ -181,7 +181,7 @@ function N(e, t, n) {
 		}), s.clear();
 	};
 }
-function P(e, t, n) {
+function N(e, t, n) {
 	let r = -1, i = new ResizeObserver(() => {
 		r === -1 && (r = requestAnimationFrame(() => {
 			e.debug.count.resize += 1, n(), r = -1;
@@ -191,7 +191,7 @@ function P(e, t, n) {
 		r !== -1 && cancelAnimationFrame(r), i.disconnect();
 	};
 }
-function F(e, t) {
+function P(e, t) {
 	let n = e.visibility, r = e.fixed, i = document.getElementById("tg_all");
 	if (!i) return () => {};
 	let a = (e) => {
@@ -201,81 +201,81 @@ function F(e, t) {
 		document.body.removeEventListener("keydown", a);
 	};
 }
-function I(e, t, n) {
+function F(e, t, n) {
 	return t.map((e, r) => r === 0 ? `screen and (max-width: ${t[r + 1] - 1}${n})` : r === t.length - 1 ? `screen and (min-width: ${e}${n})` : `screen and (min-width: ${e}${n}) and (max-width: ${t[r + 1] - 1}${n})`);
 }
 //#endregion
 //#region src/snippet.ts
-function L() {
+function I() {
 	if (document.currentScript) return document.currentScript.src;
 	let e = document.getElementsByTagName("script"), t = e[e.length - 1];
 	return t?.src ? t.src : "";
 }
 //#endregion
 //#region src/validate.ts
-function R(e) {
+function L(e) {
 	return typeof e == "object" && !!e && !Array.isArray(e);
 }
-function z(e, t, n = 1) {
+function R(e, t, n = 1) {
 	return Array.isArray(e) && e.length >= n && e.every(t);
 }
-var B = (e) => typeof e == "string", V = (e) => typeof e == "boolean", H = (e) => typeof e == "number" && isFinite(e), U = (e) => H(e) || e === "computed", W = (e) => H(e) || e === "auto", G = (e) => e === "fluid" || H(e);
-function K(e) {
+var z = (e) => typeof e == "string", B = (e) => typeof e == "boolean", V = (e) => typeof e == "number" && isFinite(e), H = (e) => V(e) || e === "computed", U = (e) => V(e) || e === "auto", W = (e) => e === "fluid" || V(e);
+function G(e) {
 	let t = [];
-	if (!R(e)) return {
+	if (!L(e)) return {
 		ok: !1,
 		errors: ["config はオブジェクトである必要があります"]
 	};
 	let n = e.general;
-	if (!R(n)) t.push("general が存在しないか不正な型です");
+	if (!L(n)) t.push("general が存在しないか不正な型です");
 	else {
-		V(n.visibility) || t.push("general.visibility は boolean が必要です"), V(n.fixed) || t.push("general.fixed は boolean が必要です"), B(n.deviceDecision) || t.push("general.deviceDecision は string が必要です");
+		B(n.visibility) || t.push("general.visibility は boolean が必要です"), B(n.fixed) || t.push("general.fixed は boolean が必要です"), z(n.deviceDecision) || t.push("general.deviceDecision は string が必要です");
 		let e = n.unit;
-		(!R(e) || !B(e.breakPoints)) && t.push("general.unit.breakPoints は string が必要です");
+		(!L(e) || !z(e.breakPoints)) && t.push("general.unit.breakPoints は string が必要です");
 	}
 	let r = e.media;
-	if (!R(r)) return t.push("media が存在しないか不正な型です"), {
+	if (!L(r)) return t.push("media が存在しないか不正な型です"), {
 		ok: !1,
 		errors: t
 	};
 	let i = r.devices;
-	if (!z(i, B)) return t.push("media.devices は string[] (1件以上) が必要です"), {
+	if (!R(i, z)) return t.push("media.devices は string[] (1件以上) が必要です"), {
 		ok: !1,
 		errors: t
 	};
 	let a = i.length, o = (e, n, r) => {
-		(!z(n, r) || n.length !== a) && t.push(`${e} は長さ ${a} の配列が必要です`);
+		(!R(n, r) || n.length !== a) && t.push(`${e} は長さ ${a} の配列が必要です`);
 	}, s = r.contents;
-	if (!R(s)) t.push("media.contents が存在しないか不正な型です");
+	if (!L(s)) t.push("media.contents が存在しないか不正な型です");
 	else {
-		o("media.contents.writingMode", s.writingMode, B), o("media.contents.fontSize", s.fontSize, U), o("media.contents.lineHeight", s.lineHeight, H), o("media.contents.letterSpacing", s.letterSpacing, H), o("media.contents.gutter", s.gutter, W);
+		o("media.contents.writingMode", s.writingMode, z), o("media.contents.fontSize", s.fontSize, H), o("media.contents.lineHeight", s.lineHeight, V), o("media.contents.letterSpacing", s.letterSpacing, V), o("media.contents.gutter", s.gutter, U);
 		let e = s.breakPoints;
-		!R(e) || !R(e.width) ? t.push("media.contents.breakPoints.width が存在しないか不正な型です") : o("media.contents.breakPoints.width.min", e.width.min, H);
+		!L(e) || !L(e.width) ? t.push("media.contents.breakPoints.width が存在しないか不正な型です") : o("media.contents.breakPoints.width.min", e.width.min, V);
 	}
 	let c = r.grids;
-	if (!R(c)) t.push("media.grids が存在しないか不正な型です");
+	if (!L(c)) t.push("media.grids が存在しないか不正な型です");
 	else {
 		let e = (e, n) => {
 			let r = c[e];
-			if (!R(r)) {
+			if (!L(r)) {
 				t.push(`media.grids.${e} が存在しないか不正な型です`);
 				return;
 			}
 			for (let [t, i] of Object.entries(n)) o(`media.grids.${e}.${t}`, r[t], i);
 		};
 		e("base", {
-			num: H,
-			gutter: H
+			num: V,
+			gutter: V
 		}), e("column", {
-			num: H,
-			sizeChar: G,
-			gutter: H
+			num: V,
+			sizeChar: W,
+			gutter: V
 		}), e("row", {
-			height: H,
-			gutter: H
+			height: V,
+			gutter: V
 		}), e("unit", {
-			num: H,
-			gutter: H
+			num: V,
+			gutter: V
 		});
 	}
 	return t.length === 0 ? { ok: !0 } : {
@@ -283,19 +283,19 @@ function K(e) {
 		errors: t
 	};
 }
-function q(e) {
-	let t = K(e);
+function K(e) {
+	let t = G(e);
 	return t.ok ? !0 : (console.warn("[typegrid] typegrid.json の設定に問題があります:"), t.errors.forEach((e) => console.warn(`  - ${e}`)), !1);
 }
 //#endregion
 //#region src/user.ts
-async function J(e, t) {
-	let n = L(), r = (n.includes("typegrid.js") ? n.replace(/typegrid\.js$/g, "") : "/") + a.json.file;
+async function q(e, t) {
+	let n = I(), r = (n.includes("typegrid.js") ? n.replace(/typegrid\.js$/g, "") : "/") + a.json.file;
 	try {
 		let n = await fetch(r, { signal: t });
 		if (!n.ok) throw Error(i.get.notfound);
 		let a = await n.json();
-		if (!q(a)) return;
+		if (!K(a)) return;
 		e(a);
 	} catch (e) {
 		if (e instanceof DOMException && e.name === "AbortError") return;
@@ -305,7 +305,7 @@ async function J(e, t) {
 }
 //#endregion
 //#region src/model.ts
-var Y = class {
+var J = class {
 	constructor(e) {
 		this.currentMedia = null, this.currentMediaIndex = 0, this.debug = r, this.lib = a, this.consoleCss = o, this.attr = s, this.aria = c, this.style = l, this.sizes = d, this.num = f, this.color = p, this.elem = m, this.config = { styleBase: u }, this.user = e, this.devices = e.media.devices, this.fontSize = e.media.contents.fontSize, this.visibility = e.general.visibility, this.fixed = e.general.fixed, this.scrollbarWidth = _(), this.width(), this.height(), this.ua(), this.keyboard(), this.size(), this.getStyle();
 	}
@@ -369,7 +369,66 @@ var Y = class {
 	getStyle() {
 		E("html");
 	}
-}, X = "http://www.w3.org/2000/svg", Z = class {
+};
+//#endregion
+//#region src/core/calc.ts
+function Y(e, t) {
+	let n = e.grids.column.num, r = t * e.grids.column.gutter, i = r * n - r, a = D(e.contents.gutter, t), o = a * 2 / n, s = e.grids.row.height, c = e.grids.row.gutter;
+	return {
+		fontSize: t,
+		lineHeight: e.contents.lineHeight,
+		columnNum: n,
+		sizeChar: e.grids.column.sizeChar,
+		gutterBaseWidth: r,
+		gutterTotal: i,
+		gutterSideEach: a,
+		gutterSideInstallments: o,
+		rowTotalHeight: (s + c) * t,
+		rowHeightPx: s * t
+	};
+}
+function X(e, t, n) {
+	let { fontSize: r, columnNum: i, sizeChar: a, gutterBaseWidth: o, gutterTotal: s, gutterSideInstallments: c } = e, l = O(r, a, t, i, s, c), u = (t - (s + l * i)) / 2, d = o + l, f = [];
+	for (let e = 0; e < i; e++) f.push({
+		x: e * d + u,
+		width: l,
+		height: n
+	});
+	return f;
+}
+function Z(e, t, n) {
+	let { rowTotalHeight: r, rowHeightPx: i } = e, a = Math.floor(n / r) + 1, o = [];
+	for (let e = 0; e < a; e++) o.push({
+		x: 0,
+		y: Math.floor(e * r),
+		width: t,
+		height: i
+	});
+	return o;
+}
+function Q(e, t, n) {
+	let { fontSize: r, lineHeight: i } = e, a = Math.floor(n / r * i), o = r * i / 2, s = [];
+	for (let e = 0; e < a; e++) {
+		let n = e * o;
+		s.push({
+			x1: 0,
+			y1: n,
+			x2: t,
+			y2: n
+		});
+	}
+	return s;
+}
+function te(e, t, n) {
+	return {
+		columns: X(e, t, n),
+		rows: Z(e, t, n),
+		rhythmLines: Q(e, t, n)
+	};
+}
+//#endregion
+//#region src/view.ts
+var ne = "http://www.w3.org/2000/svg", re = class {
 	constructor(e, t) {
 		this.currentMedia = null, this.cachedFontSize = null, this.cachedMediaCalc = null, this.elSvgGrid = null, this.elLayoutBody = null, this.elRowBody = null, this.elRhythmBody = null, this.utils = e, this.model = t;
 	}
@@ -384,7 +443,7 @@ var Y = class {
 		for (let e = 0; e < a; e++) r(i[e], e, !1);
 		let o = document.createDocumentFragment();
 		for (let e = i.length; e < t; e++) {
-			let t = document.createElementNS(X, n);
+			let t = document.createElementNS(ne, n);
 			r(t, e, !0), o.appendChild(t);
 		}
 		o.childNodes.length > 0 && e.appendChild(o);
@@ -402,23 +461,11 @@ var Y = class {
 		if (e === "init") this.wrapper(this.model.elem.wrapper.html, this.model), this.elSvgGrid = document.getElementById("tg_grid"), this.elLayoutBody = document.getElementById("tg_layout__body"), this.elRowBody = document.getElementById("tg_row__body"), this.elRhythmBody = document.getElementById("tg_rhythm__body"), this.model.wrapperHeight(), this.visibility(), this.utils.insertStyleElem(this.model.config.styleBase), this.utils.setSvgSizes(this.elSvgGrid, this.model.width(), this.utils.height()), this.currentMedia = this.model.currentMedia, this.render("resize");
 		else if (e === "resize") {
 			if (!this.currentMedia) return;
-			if (this.cachedFontSize === null && (this.cachedFontSize = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, "html")), this.cachedMediaCalc === null) {
-				let e = this.cachedFontSize, t = this.currentMedia.grids.column.num, n = this.currentMedia.grids.column.gutter, r = this.currentMedia.contents.gutter, i = this.currentMedia.grids.row.height, a = this.currentMedia.grids.row.gutter, o = e * n, s = o * t - o, c = this.utils.decisionGutterSideType(r, e), l = c * 2 / t;
-				this.cachedMediaCalc = {
-					fontSize: e,
-					lineHeight: this.currentMedia.contents.lineHeight,
-					columnNum: t,
-					sizeChar: this.currentMedia.grids.column.sizeChar,
-					gutterBaseWidth: o,
-					gutterTotal: s,
-					gutterSideEach: c,
-					gutterSideInstallments: l,
-					rowTotalHeight: (i + a) * e,
-					rowHeightPx: i * e
-				};
-			}
+			this.cachedFontSize === null && (this.cachedFontSize = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, "html")), this.cachedMediaCalc === null && (this.cachedMediaCalc = Y(this.currentMedia, this.cachedFontSize));
 			let e = this.cachedMediaCalc, t = this.model.width(), n = this.utils.height();
-			this.model.wrapperHeight(n), this.utils.setSvgSizes(this.elSvgGrid, t, n), this.rhythm(e, t, n), this.row(e, t, n), this.layout(e, t, n), this.base(), this.unit();
+			this.model.wrapperHeight(n), this.utils.setSvgSizes(this.elSvgGrid, t, n);
+			let r = te(e, t, n);
+			this.rhythm(r.rhythmLines), this.row(r.rows), this.layout(r.columns), this.base(), this.unit();
 		} else if (e === "change") this.unit();
 		else if (e === "media") {
 			if (t === void 0) return;
@@ -427,26 +474,25 @@ var Y = class {
 	}
 	base() {}
 	unit() {}
-	layout(e, t, n) {
-		let { fontSize: r, columnNum: i, sizeChar: a, gutterBaseWidth: o, gutterTotal: s, gutterSideInstallments: c } = e, l = this.utils.decisionColumnSizeType(r, a, t, i, s, c), u = (t - (s + l * i)) / 2, d = o + l, f = String(l), p = String(n), m = this.elLayoutBody;
-		m && this.syncSvgElements(m, i, "rect", (e, t, n) => {
-			n && (e.setAttribute("class", `rect-x${t}`), e.setAttribute("y", "0")), e.setAttribute("x", String(t * d + u)), e.setAttribute("width", f), e.setAttribute("height", p);
+	layout(e) {
+		let t = this.elLayoutBody;
+		t && this.syncSvgElements(t, e.length, "rect", (t, n, r) => {
+			let i = e[n];
+			r && (t.setAttribute("class", `rect-x${n}`), t.setAttribute("y", "0")), t.setAttribute("x", String(i.x)), t.setAttribute("width", String(i.width)), t.setAttribute("height", String(i.height));
 		});
 	}
-	row(e, t, n) {
-		let { rowTotalHeight: r, rowHeightPx: i } = e, a = Math.floor(n / r) + 1, o = String(t), s = String(i), c = this.elRowBody;
-		c && this.syncSvgElements(c, a, "rect", (e, t, n) => {
-			n && (e.setAttribute("class", `row-y${t}`), e.setAttribute("x", "0"), e.setAttribute("y", String(Math.floor(t * r))), e.setAttribute("height", s)), e.setAttribute("width", o);
+	row(e) {
+		let t = this.elRowBody;
+		t && this.syncSvgElements(t, e.length, "rect", (t, n, r) => {
+			let i = e[n];
+			r && (t.setAttribute("class", `row-y${n}`), t.setAttribute("x", "0"), t.setAttribute("y", String(i.y)), t.setAttribute("height", String(i.height))), t.setAttribute("width", String(i.width));
 		});
 	}
-	rhythm(e, t, n) {
-		let { fontSize: r, lineHeight: i } = e, a = Math.floor(n / r * i), o = r * i / 2, s = String(t), c = this.elRhythmBody;
-		c && this.syncSvgElements(c, a, "line", (e, t, n) => {
-			if (n) {
-				let n = String(t * o);
-				e.setAttribute("class", `line-y${t}`), e.setAttribute("x1", "0"), e.setAttribute("y1", n), e.setAttribute("y2", n);
-			}
-			e.setAttribute("x2", s);
+	rhythm(e) {
+		let t = this.elRhythmBody;
+		t && this.syncSvgElements(t, e.length, "line", (t, n, r) => {
+			let i = e[n];
+			r && (t.setAttribute("class", `line-y${n}`), t.setAttribute("x1", "0"), t.setAttribute("y1", String(i.y1)), t.setAttribute("y2", String(i.y2))), t.setAttribute("x2", String(i.x2));
 		});
 	}
 	ruler() {}
@@ -457,7 +503,7 @@ var Y = class {
 };
 //#endregion
 //#region src/gui.ts
-function Q(e, t) {
+function $(e, t) {
 	let n = e.user.media, r = n.contents.fontSize[t], i = n.contents.gutter[t];
 	return {
 		fontSize: r === "computed" ? parseFloat(getComputedStyle(document.documentElement).fontSize) : r ?? 16,
@@ -469,10 +515,10 @@ function Q(e, t) {
 		rowGutter: n.grids.row.gutter[t] ?? 1
 	};
 }
-function $(e, t, n) {
+function ie(e, t, n) {
 	let r = n ?? window.lil?.GUI;
 	if (!r) return null;
-	let i = e.currentMediaIndex, a = Q(e, i), o = () => {
+	let i = e.currentMediaIndex, a = $(e, i), o = () => {
 		if (!t.currentMedia) return;
 		let e = t.currentMedia;
 		e.contents.fontSize = a.fontSize, e.contents.lineHeight = a.lineHeight, e.contents.gutter = a.contentGutter, e.grids.column.num = a.columnNum, e.grids.column.gutter = a.columnGutter, e.grids.row.height = a.rowHeight, e.grids.row.gutter = a.rowGutter, t.invalidateMediaCalc(), t.render("resize");
@@ -486,7 +532,7 @@ function $(e, t, n) {
 		s.href = o, s.download = "typegrid.json", document.body.appendChild(s), s.click(), document.body.removeChild(s), URL.revokeObjectURL(o);
 	} }, "exportJson").name("Export JSON"), {
 		updateMedia(t) {
-			i = t, Object.assign(a, Q(e, t)), s.controllersRecursive().forEach((e) => e.updateDisplay());
+			i = t, Object.assign(a, $(e, t)), s.controllersRecursive().forEach((e) => e.updateDisplay());
 		},
 		destroy() {
 			s.destroy();
@@ -495,13 +541,13 @@ function $(e, t, n) {
 }
 //#endregion
 //#region src/controller.ts
-var ee = class {
+var ae = class {
 	constructor(e, t, n, r) {
 		this.unKeyBinds = () => {}, this.gui = null, this.utils = e, this.model = t, this.view = n, this.guiConstructor = r, this.unlistenMedia = this.media(), this.uncheckWindow = this.resize(), this.init();
 	}
 	init() {
 		let e = () => {
-			this.view.render("init"), this.unKeyBinds = this.utils.keyBinds(this.model, this.view), this.gui = $(this.model, this.view, this.guiConstructor);
+			this.view.render("init"), this.unKeyBinds = this.utils.keyBinds(this.model, this.view), this.gui = ie(this.model, this.view, this.guiConstructor);
 		};
 		document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 	}
@@ -521,13 +567,13 @@ var ee = class {
 };
 //#endregion
 //#region src/main.ts
-function te(e) {
+function oe(e) {
 	let t = null, n = null, r = {
 		init() {
-			n = new AbortController(), J((r) => {
+			n = new AbortController(), q((r) => {
 				n = null;
-				let i = new Y(r);
-				t = new ee(h, i, new Z(h, i), e?.gui);
+				let i = new J(r);
+				t = new ae(h, i, new re(h, i), e?.gui);
 			}, n.signal);
 		},
 		destroy() {
@@ -537,4 +583,4 @@ function te(e) {
 	return r.init(), r;
 }
 //#endregion
-export { te as typegrid };
+export { oe as typegrid };
