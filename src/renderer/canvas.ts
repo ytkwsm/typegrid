@@ -16,6 +16,7 @@ import {
   computeGridLayout,
 } from '../core/calc.js';
 import {
+  type GridColors,
   buildSvgString,
   drawGridToCanvas,
   readGridColors,
@@ -28,6 +29,7 @@ export class TypegridCanvasRenderer implements Renderer {
   private ctx: CanvasRenderingContext2D | null = null;
   private cachedFontSize: number | null = null;
   private cachedMediaCalc: MediaCalcCache | null = null;
+  private cachedColors: GridColors | null = null;
   private lastWidth:  number = 0;
   private lastHeight: number = 0;
 
@@ -78,12 +80,14 @@ export class TypegridCanvasRenderer implements Renderer {
     this.currentMedia    = this.model.getJsonValues(index);
     this.cachedFontSize  = null;
     this.cachedMediaCalc = null;
+    this.cachedColors    = null;
     this.resize();
   }
 
   invalidateMediaCalc(): void {
     this.cachedFontSize  = null;
     this.cachedMediaCalc = null;
+    this.cachedColors    = null;
   }
 
   destroy(): void {
@@ -93,6 +97,7 @@ export class TypegridCanvasRenderer implements Renderer {
     this.currentMedia    = null;
     this.cachedFontSize  = null;
     this.cachedMediaCalc = null;
+    this.cachedColors    = null;
   }
 
   exportSvg(): string | null {
@@ -111,6 +116,7 @@ export class TypegridCanvasRenderer implements Renderer {
 
   private draw(layout: GridLayout, width: number, height: number): void {
     if (!this.ctx) return;
-    drawGridToCanvas(this.ctx, layout, width, height, readGridColors());
+    this.cachedColors ??= readGridColors();
+    drawGridToCanvas(this.ctx, layout, width, height, this.cachedColors);
   }
 }
