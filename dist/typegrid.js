@@ -86,62 +86,62 @@ var e = Object.defineProperty, t = (t, n) => {
 		"<g id='tg_rhythm'><g id='tg_rhythm__body'></g></g>",
 		"</svg>"
 	].join("")
-} }, h = /* @__PURE__ */ t({
-	buildMediaQueries: () => ne,
-	calcScrollbarWidth: () => _,
-	checkBrowserHeight: () => v,
-	checkWindowSize: () => ee,
-	convertComputedFontSize: () => T,
-	convertHex: () => w,
-	decisionColumnSizeType: () => O,
-	decisionGutterSideType: () => D,
-	ensureContainer: () => j,
-	getElementTagStyle: () => C,
-	getJSON: () => g,
-	getStyles: () => E,
-	height: () => x,
-	insertStyleElem: () => M,
-	keyBinds: () => te,
-	listenMediaQueries: () => P,
-	reset: () => A,
-	setSvgSizes: () => k,
-	setWrapperHeight: () => y,
-	ua: () => S,
-	width: () => b,
-	wrapper: () => N
+} }, ee = /* @__PURE__ */ t({
+	buildMediaQueries: () => oe,
+	calcScrollbarWidth: () => h,
+	checkBrowserHeight: () => g,
+	checkWindowSize: () => ie,
+	convertComputedFontSize: () => C,
+	convertHex: () => S,
+	decisionColumnSizeType: () => E,
+	decisionGutterSideType: () => T,
+	ensureContainer: () => D,
+	getElementTagStyle: () => x,
+	getJSON: () => te,
+	getStyles: () => w,
+	height: () => y,
+	insertStyleElem: () => O,
+	keyBinds: () => ae,
+	listenMediaQueries: () => A,
+	reset: () => re,
+	setSvgSizes: () => ne,
+	setWrapperHeight: () => _,
+	ua: () => b,
+	width: () => v,
+	wrapper: () => k
 });
-function g(e) {
+function te(e) {
 	return n[e];
 }
-function _() {
+function h() {
 	let e = document.createElement("div");
 	e.style.visibility = "hidden", e.style.overflow = "scroll", document.body.appendChild(e);
 	let t = e.offsetWidth - e.clientWidth;
 	return document.body.removeChild(e), t;
 }
-function v() {
+function g() {
 	return Math.max(window.innerHeight, document.documentElement.clientHeight) < Math.max(document.body.scrollHeight, document.body.clientHeight);
 }
-function y(e) {
+function _(e) {
 	let t = document.getElementById("tg_wrapper");
-	t && (t.style.height = `${e ?? x()}px`);
+	t && (t.style.height = `${e ?? y()}px`);
 }
-function b() {
+function v() {
 	return window.innerWidth || document.documentElement.clientWidth || 0;
 }
-function x() {
+function y() {
 	return Math.max(window.innerHeight, document.documentElement.clientHeight, document.body.offsetHeight, document.body.clientHeight, document.body.scrollHeight);
 }
-function S() {
+function b() {
 	let e = navigator.userAgent;
 	e.indexOf("iPhone") > 0 || e.indexOf("Android") > 0 && e.indexOf("Mobile") > 0 ? console.info("[typegrid] UA: mobile detected") : e.indexOf("iPad") > 0 || e.indexOf("Android") > 0 ? console.info("[typegrid] UA: tablet detected") : console.info("[typegrid] UA: desktop detected");
 }
-function C(e) {
+function x(e) {
 	let t = document.getElementsByTagName(e).item(0);
 	if (!t) throw Error(`[typegrid] Element <${e}> not found.`);
 	return window.getComputedStyle(t);
 }
-function w(e) {
+function S(e) {
 	let t = /rgba?\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),?\s*([.\d]+)?\)/.exec(e);
 	return t ? [
 		1,
@@ -149,45 +149,45 @@ function w(e) {
 		3
 	].map((e) => Number(t[e]).toString(16).padStart(2, "0")).join("") : "";
 }
-function T(e, t) {
+function C(e, t) {
 	if (e === "computed") {
-		let e = C(t);
+		let e = x(t);
 		return parseFloat(e.fontSize);
 	}
 	return e;
 }
-function E(e) {
-	let t = C(e);
-	console.info(`[typegrid] <${e}> styles —`, `font-size: ${t.fontSize};`, `line-height: ${t.lineHeight};`, `color: #${w(t.color)};`);
+function w(e) {
+	let t = x(e);
+	console.info(`[typegrid] <${e}> styles —`, `font-size: ${t.fontSize};`, `line-height: ${t.lineHeight};`, `color: #${S(t.color)};`);
 }
-function D(e, t) {
+function T(e, t) {
 	return e === "auto" ? 0 : e * t;
 }
-function O(e, t, n, r, i, a) {
+function E(e, t, n, r, i, a) {
 	let o = n - i;
 	return t === "fluid" ? o / r - a : e * t - a;
 }
-function k(e, t, n) {
+function ne(e, t, n) {
 	e && (e.setAttribute("width", String(t)), e.setAttribute("height", String(n)), e.setAttribute("viewBox", `0 0 ${t} ${n}`));
 }
-function A(e) {
+function re(e) {
 	e.replaceChildren();
 }
-function j(e) {
+function D(e) {
 	if (document.getElementById("tg_all")) return;
 	let t = document.createElement("div");
 	t.setAttribute("id", "tg_all"), t.setAttribute("role", "presentation"), t.setAttribute("aria-hidden", "true"), document.body.appendChild(t), t.innerHTML = e;
 }
-function M(e) {
+function O(e) {
 	if (document.getElementById("tg_style")) return;
 	let t = document.createElement("style"), n = document.getElementById("tg_all");
 	n && (t.setAttribute("id", "tg_style"), t.textContent = e, n.appendChild(t));
 }
-function N(e, t) {
+function k(e, t) {
 	let n = document.createElement("div"), r = document.body;
 	n.setAttribute("id", "tg_all"), n.setAttribute("role", "presentation"), n.setAttribute("aria-hidden", "true"), r.appendChild(n), n.innerHTML = e;
 }
-function P(e, t) {
+function A(e, t) {
 	let n = e.user.media.contents.breakPoints.width.min, r = e.user.media.devices, i = e.user.general.unit.breakPoints, a = -1, o = /* @__PURE__ */ new Map(), s = (n) => {
 		a = n, e.currentMediaIndex = n, console.info(`[typegrid] media query matched: ${r[a]} (index: ${a})`), t(a);
 	}, c = (e) => {
@@ -207,7 +207,7 @@ function P(e, t) {
 		}), o.clear();
 	};
 }
-function ee(e, t) {
+function ie(e, t) {
 	let n = -1, r = new ResizeObserver(() => {
 		n === -1 && (n = requestAnimationFrame(() => {
 			e.debug.count.resize += 1, t(), n = -1;
@@ -217,7 +217,7 @@ function ee(e, t) {
 		n !== -1 && cancelAnimationFrame(n), r.disconnect();
 	};
 }
-function te(e) {
+function ae(e) {
 	let t = e.visibility, n = e.fixed, r = document.getElementById("tg_all");
 	if (!r) return () => {};
 	let i = (e) => {
@@ -227,81 +227,81 @@ function te(e) {
 		document.body.removeEventListener("keydown", i);
 	};
 }
-function ne(e, t, n) {
+function oe(e, t, n) {
 	return t.map((e, r) => r === 0 ? `screen and (max-width: ${t[r + 1] - 1}${n})` : r === t.length - 1 ? `screen and (min-width: ${e}${n})` : `screen and (min-width: ${e}${n}) and (max-width: ${t[r + 1] - 1}${n})`);
 }
 //#endregion
 //#region src/snippet.ts
-function re() {
+function se() {
 	if (document.currentScript) return document.currentScript.src;
 	let e = document.getElementsByTagName("script"), t = e[e.length - 1];
 	return t?.src ? t.src : "";
 }
 //#endregion
 //#region src/validate.ts
-function F(e) {
+function j(e) {
 	return typeof e == "object" && !!e && !Array.isArray(e);
 }
-function I(e, t, n = 1) {
+function M(e, t, n = 1) {
 	return Array.isArray(e) && e.length >= n && e.every(t);
 }
-var L = (e) => typeof e == "string", R = (e) => typeof e == "boolean", z = (e) => typeof e == "number" && isFinite(e), B = (e) => z(e) || e === "computed", V = (e) => z(e) || e === "auto", H = (e) => e === "fluid" || z(e);
-function U(e) {
+var N = (e) => typeof e == "string", P = (e) => typeof e == "boolean", F = (e) => typeof e == "number" && isFinite(e), I = (e) => F(e) || e === "computed", L = (e) => F(e) || e === "auto", R = (e) => e === "fluid" || F(e);
+function z(e) {
 	let t = [];
-	if (!F(e)) return {
+	if (!j(e)) return {
 		ok: !1,
 		errors: ["config はオブジェクトである必要があります"]
 	};
 	let n = e.general;
-	if (!F(n)) t.push("general が存在しないか不正な型です");
+	if (!j(n)) t.push("general が存在しないか不正な型です");
 	else {
-		R(n.visibility) || t.push("general.visibility は boolean が必要です"), R(n.fixed) || t.push("general.fixed は boolean が必要です"), L(n.deviceDecision) || t.push("general.deviceDecision は string が必要です");
+		P(n.visibility) || t.push("general.visibility は boolean が必要です"), P(n.fixed) || t.push("general.fixed は boolean が必要です"), N(n.deviceDecision) || t.push("general.deviceDecision は string が必要です");
 		let e = n.unit;
-		(!F(e) || !L(e.breakPoints)) && t.push("general.unit.breakPoints は string が必要です");
+		(!j(e) || !N(e.breakPoints)) && t.push("general.unit.breakPoints は string が必要です");
 	}
 	let r = e.media;
-	if (!F(r)) return t.push("media が存在しないか不正な型です"), {
+	if (!j(r)) return t.push("media が存在しないか不正な型です"), {
 		ok: !1,
 		errors: t
 	};
 	let i = r.devices;
-	if (!I(i, L)) return t.push("media.devices は string[] (1件以上) が必要です"), {
+	if (!M(i, N)) return t.push("media.devices は string[] (1件以上) が必要です"), {
 		ok: !1,
 		errors: t
 	};
 	let a = i.length, o = (e, n, r) => {
-		(!I(n, r) || n.length !== a) && t.push(`${e} は長さ ${a} の配列が必要です`);
+		(!M(n, r) || n.length !== a) && t.push(`${e} は長さ ${a} の配列が必要です`);
 	}, s = r.contents;
-	if (!F(s)) t.push("media.contents が存在しないか不正な型です");
+	if (!j(s)) t.push("media.contents が存在しないか不正な型です");
 	else {
-		o("media.contents.writingMode", s.writingMode, L), o("media.contents.fontSize", s.fontSize, B), o("media.contents.lineHeight", s.lineHeight, z), o("media.contents.letterSpacing", s.letterSpacing, z), o("media.contents.gutter", s.gutter, V);
+		o("media.contents.writingMode", s.writingMode, N), o("media.contents.fontSize", s.fontSize, I), o("media.contents.lineHeight", s.lineHeight, F), o("media.contents.letterSpacing", s.letterSpacing, F), o("media.contents.gutter", s.gutter, L);
 		let e = s.breakPoints;
-		!F(e) || !F(e.width) ? t.push("media.contents.breakPoints.width が存在しないか不正な型です") : o("media.contents.breakPoints.width.min", e.width.min, z);
+		!j(e) || !j(e.width) ? t.push("media.contents.breakPoints.width が存在しないか不正な型です") : o("media.contents.breakPoints.width.min", e.width.min, F);
 	}
 	let c = r.grids;
-	if (!F(c)) t.push("media.grids が存在しないか不正な型です");
+	if (!j(c)) t.push("media.grids が存在しないか不正な型です");
 	else {
 		let e = (e, n) => {
 			let r = c[e];
-			if (!F(r)) {
+			if (!j(r)) {
 				t.push(`media.grids.${e} が存在しないか不正な型です`);
 				return;
 			}
 			for (let [t, i] of Object.entries(n)) o(`media.grids.${e}.${t}`, r[t], i);
 		};
 		e("base", {
-			num: z,
-			gutter: z
+			num: F,
+			gutter: F
 		}), e("column", {
-			num: z,
-			sizeChar: H,
-			gutter: z
+			num: F,
+			sizeChar: R,
+			gutter: F
 		}), e("row", {
-			height: z,
-			gutter: z
+			height: F,
+			gutter: F
 		}), e("unit", {
-			num: z,
-			gutter: z
+			num: F,
+			gutter: F
 		});
 	}
 	return t.length === 0 ? { ok: !0 } : {
@@ -309,19 +309,19 @@ function U(e) {
 		errors: t
 	};
 }
-function W(e) {
-	let t = U(e);
+function B(e) {
+	let t = z(e);
 	return t.ok ? !0 : (console.warn("[typegrid] typegrid.json の設定に問題があります:"), t.errors.forEach((e) => console.warn(`  - ${e}`)), !1);
 }
 //#endregion
 //#region src/user.ts
-async function G(e, t) {
-	let n = re(), r = (n.includes("typegrid.js") ? n.replace(/typegrid\.js$/g, "") : "/") + a.json.file;
+async function V(e, t) {
+	let n = se(), r = (n.includes("typegrid.js") ? n.replace(/typegrid\.js$/g, "") : "/") + a.json.file;
 	try {
 		let n = await fetch(r, { signal: t });
 		if (!n.ok) throw Error(i.get.notfound);
 		let a = await n.json();
-		if (!W(a)) return;
+		if (!B(a)) return;
 		e(a);
 	} catch (e) {
 		if (e instanceof DOMException && e.name === "AbortError") return;
@@ -331,9 +331,9 @@ async function G(e, t) {
 }
 //#endregion
 //#region src/model.ts
-var K = class {
+var H = class {
 	constructor(e) {
-		this.currentMedia = null, this.currentMediaIndex = 0, this.debug = r, this.lib = a, this.consoleCss = o, this.attr = s, this.aria = c, this.style = l, this.sizes = d, this.num = f, this.color = p, this.elem = m, this.config = { styleBase: u }, this.user = e, this.devices = e.media.devices, this.fontSize = e.media.contents.fontSize, this.visibility = e.general.visibility, this.fixed = e.general.fixed, this.scrollbarWidth = _(), this.width(), this.height(), this.ua(), this.keyboard(), this.size(), this.getStyle();
+		this.currentMedia = null, this.currentMediaIndex = 0, this.debug = r, this.lib = a, this.consoleCss = o, this.attr = s, this.aria = c, this.style = l, this.sizes = d, this.num = f, this.color = p, this.elem = m, this.config = { styleBase: u }, this.user = e, this.devices = e.media.devices, this.fontSize = e.media.contents.fontSize, this.visibility = e.general.visibility, this.fixed = e.general.fixed, this.scrollbarWidth = h(), this.width(), this.height(), this.ua(), this.keyboard(), this.size(), this.getStyle();
 	}
 	getJsonValues(e) {
 		let t = this.user.media, n = t.devices.length;
@@ -370,17 +370,17 @@ var K = class {
 		};
 	}
 	width() {
-		let e = v(), t = b();
+		let e = g(), t = v();
 		return e ? t - this.scrollbarWidth : t;
 	}
 	height() {
-		return x();
+		return y();
 	}
 	wrapperHeight(e) {
-		y(e);
+		_(e);
 	}
 	ua() {
-		S();
+		b();
 	}
 	base() {}
 	unit() {}
@@ -393,13 +393,13 @@ var K = class {
 	keyboard() {}
 	size() {}
 	getStyle() {
-		E("html");
+		w("html");
 	}
 };
 //#endregion
 //#region src/core/calc.ts
-function q(e, t) {
-	let n = e.grids.column.num, r = t * e.grids.column.gutter, i = r * n - r, a = D(e.contents.gutter, t), o = a * 2 / n, s = e.grids.row.height, c = e.grids.row.gutter;
+function U(e, t) {
+	let n = e.grids.column.num, r = t * e.grids.column.gutter, i = r * n - r, a = T(e.contents.gutter, t), o = a * 2 / n, s = e.grids.row.height, c = e.grids.row.gutter;
 	return {
 		fontSize: t,
 		lineHeight: e.contents.lineHeight,
@@ -413,8 +413,8 @@ function q(e, t) {
 		rowHeightPx: s * t
 	};
 }
-function J(e, t, n) {
-	let { fontSize: r, columnNum: i, sizeChar: a, gutterBaseWidth: o, gutterTotal: s, gutterSideInstallments: c } = e, l = O(r, a, t, i, s, c), u = (t - (s + l * i)) / 2, d = o + l, f = [];
+function W(e, t, n) {
+	let { fontSize: r, columnNum: i, sizeChar: a, gutterBaseWidth: o, gutterTotal: s, gutterSideInstallments: c } = e, l = E(r, a, t, i, s, c), u = (t - (s + l * i)) / 2, d = o + l, f = [];
 	for (let e = 0; e < i; e++) f.push({
 		x: e * d + u,
 		width: l,
@@ -422,7 +422,7 @@ function J(e, t, n) {
 	});
 	return f;
 }
-function Y(e, t, n) {
+function G(e, t, n) {
 	let { rowTotalHeight: r, rowHeightPx: i } = e, a = Math.floor(n / r) + 1, o = [];
 	for (let e = 0; e < a; e++) o.push({
 		x: 0,
@@ -432,7 +432,7 @@ function Y(e, t, n) {
 	});
 	return o;
 }
-function ie(e, t, n) {
+function ce(e, t, n) {
 	let { fontSize: r, lineHeight: i } = e, a = Math.floor(n / r * i), o = r * i / 2, s = [];
 	for (let e = 0; e < a; e++) {
 		let n = e * o;
@@ -445,38 +445,74 @@ function ie(e, t, n) {
 	}
 	return s;
 }
-function X(e, t, n) {
+function K(e, t, n) {
 	return {
-		columns: J(e, t, n),
-		rows: Y(e, t, n),
-		rhythmLines: ie(e, t, n)
+		columns: W(e, t, n),
+		rows: G(e, t, n),
+		rhythmLines: ce(e, t, n)
 	};
 }
 //#endregion
-//#region src/renderer/canvas.ts
-var ae = .125, oe = .5, se = .125, ce = .5, le = .75, ue = .5;
-function Z(e, t) {
+//#region src/renderer/download.ts
+function q() {
+	let e = getComputedStyle(document.documentElement);
+	return {
+		column: e.getPropertyValue("--tg-color-column").trim() || "#ff0000",
+		row: e.getPropertyValue("--tg-color-row").trim() || "#ff0000",
+		rhythm: e.getPropertyValue("--tg-color-rhythm").trim() || "#999999"
+	};
+}
+function J(e, t) {
 	let n = e.replace("#", "");
 	return `rgba(${parseInt(n.slice(0, 2), 16)},${parseInt(n.slice(2, 4), 16)},${parseInt(n.slice(4, 6), 16)},${t})`;
 }
+function Y(e, t, n, r, i) {
+	e.clearRect(0, 0, n, r), e.fillStyle = J(i.column, .125);
+	for (let n of t.columns) e.fillRect(n.x, 0, n.width, r);
+	e.strokeStyle = J(i.column, .5), e.lineWidth = 1;
+	for (let n of t.columns) e.strokeRect(n.x, 0, n.width, r);
+	e.fillStyle = J(i.row, .125);
+	for (let n of t.rows) e.fillRect(n.x, n.y, n.width, n.height);
+	e.strokeStyle = J(i.row, .5);
+	for (let n of t.rows) e.strokeRect(n.x, n.y, n.width, n.height);
+	e.strokeStyle = J(i.rhythm, .75), e.lineWidth = .5, e.beginPath();
+	for (let n of t.rhythmLines) e.moveTo(n.x1, n.y1), e.lineTo(n.x2, n.y2);
+	e.stroke();
+}
+function X(e, t, n, r) {
+	let i = J(r.column, .125), a = J(r.column, .5), o = J(r.row, .125), s = J(r.row, .5), c = J(r.rhythm, .75), l = e.columns.map((e) => `<rect x="${e.x}" y="0" width="${e.width}" height="${n}" fill="${i}" stroke="${a}" stroke-width="1"/>`).join(""), u = e.rows.map((e) => `<rect x="${e.x}" y="${e.y}" width="${e.width}" height="${e.height}" fill="${o}" stroke="${s}" stroke-width="1"/>`).join(""), d = e.rhythmLines.map((e) => `<line x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" stroke="${c}" stroke-width="0.5"/>`).join("");
+	return [
+		`<svg xmlns="http://www.w3.org/2000/svg" width="${t}" height="${n}">`,
+		`<g id="tg_layout">${l}</g>`,
+		`<g id="tg_row">${u}</g>`,
+		`<g id="tg_rhythm">${d}</g>`,
+		"</svg>"
+	].join("");
+}
+function Z(e, t) {
+	let n = URL.createObjectURL(e), r = document.createElement("a");
+	r.href = n, r.download = t, document.body.appendChild(r), r.click(), document.body.removeChild(r), URL.revokeObjectURL(n);
+}
+//#endregion
+//#region src/renderer/canvas.ts
 var Q = class {
 	constructor(e) {
-		this.currentMedia = null, this.canvas = null, this.ctx = null, this.cachedFontSize = null, this.cachedMediaCalc = null, this.model = e;
+		this.currentMedia = null, this.canvas = null, this.ctx = null, this.cachedFontSize = null, this.cachedMediaCalc = null, this.lastWidth = 0, this.lastHeight = 0, this.model = e;
 	}
 	init() {
-		j(this.model.elem.wrapper.containerHtml);
+		D(this.model.elem.wrapper.containerHtml);
 		let e = document.getElementById("tg_wrapper");
 		if (!e) return;
 		this.canvas = document.createElement("canvas"), this.canvas.id = "tg_canvas", this.canvas.style.cssText = "position:absolute;top:0;left:0;pointer-events:none;", e.appendChild(this.canvas), this.ctx = this.canvas.getContext("2d"), this.model.wrapperHeight();
 		let t = document.getElementById("tg_all");
-		t && (t.style.display = this.model.visibility ? "block" : "none"), M(this.model.config.styleBase), this.currentMedia = this.model.currentMedia, this.resize();
+		t && (t.style.display = this.model.visibility ? "block" : "none"), O(this.model.config.styleBase), this.currentMedia = this.model.currentMedia, this.resize();
 	}
 	resize() {
 		if (!this.currentMedia || !this.canvas || !this.ctx) return;
-		this.cachedFontSize === null && (this.cachedFontSize = T(this.currentMedia.contents.fontSize, "html")), this.cachedMediaCalc === null && (this.cachedMediaCalc = q(this.currentMedia, this.cachedFontSize));
-		let e = this.model.width(), t = x();
-		this.model.wrapperHeight(t), this.canvas.width = e, this.canvas.height = t;
-		let n = X(this.cachedMediaCalc, e, t);
+		this.cachedFontSize === null && (this.cachedFontSize = C(this.currentMedia.contents.fontSize, "html")), this.cachedMediaCalc === null && (this.cachedMediaCalc = U(this.currentMedia, this.cachedFontSize));
+		let e = this.model.width(), t = y();
+		this.lastWidth = e, this.lastHeight = t, this.model.wrapperHeight(t), this.canvas.width = e, this.canvas.height = t;
+		let n = K(this.cachedMediaCalc, e, t);
 		this.draw(n, e, t);
 	}
 	mediaChange(e) {
@@ -488,25 +524,20 @@ var Q = class {
 	destroy() {
 		this.canvas?.remove(), this.canvas = null, this.ctx = null, this.currentMedia = null, this.cachedFontSize = null, this.cachedMediaCalc = null;
 	}
-	draw(e, t, n) {
-		let r = this.ctx;
-		r.clearRect(0, 0, t, n);
-		let i = getComputedStyle(document.documentElement), a = i.getPropertyValue("--tg-color-column").trim() || "#ff0000", o = i.getPropertyValue("--tg-color-row").trim() || "#ff0000", s = i.getPropertyValue("--tg-color-rhythm").trim() || "#999999";
-		r.fillStyle = Z(a, ae);
-		for (let t of e.columns) r.fillRect(t.x, 0, t.width, n);
-		r.strokeStyle = Z(a, oe), r.lineWidth = 1;
-		for (let t of e.columns) r.strokeRect(t.x, 0, t.width, n);
-		r.fillStyle = Z(o, se);
-		for (let t of e.rows) r.fillRect(t.x, t.y, t.width, t.height);
-		r.strokeStyle = Z(o, ce);
-		for (let t of e.rows) r.strokeRect(t.x, t.y, t.width, t.height);
-		r.strokeStyle = Z(s, le), r.lineWidth = ue, r.beginPath();
-		for (let t of e.rhythmLines) r.moveTo(t.x1, t.y1), r.lineTo(t.x2, t.y2);
-		r.stroke();
+	exportSvg() {
+		return this.cachedMediaCalc ? X(K(this.cachedMediaCalc, this.lastWidth, this.lastHeight), this.lastWidth, this.lastHeight, q()) : null;
 	}
-}, de = "http://www.w3.org/2000/svg", fe = class {
+	exportPng() {
+		return this.canvas ? new Promise((e) => {
+			this.canvas.toBlob((t) => e(t), "image/png");
+		}) : Promise.resolve(null);
+	}
+	draw(e, t, n) {
+		this.ctx && Y(this.ctx, e, t, n, q());
+	}
+}, le = "http://www.w3.org/2000/svg", ue = class {
 	constructor(e, t) {
-		this.currentMedia = null, this.cachedFontSize = null, this.cachedMediaCalc = null, this.elSvgGrid = null, this.elLayoutBody = null, this.elRowBody = null, this.elRhythmBody = null, this.utils = e, this.model = t;
+		this.currentMedia = null, this.cachedFontSize = null, this.cachedMediaCalc = null, this.lastWidth = 0, this.lastHeight = 0, this.elSvgGrid = null, this.elLayoutBody = null, this.elRowBody = null, this.elRhythmBody = null, this.utils = e, this.model = t;
 	}
 	init() {
 		this.render("init");
@@ -520,12 +551,22 @@ var Q = class {
 	destroy() {
 		this.elLayoutBody?.replaceChildren(), this.elRowBody?.replaceChildren(), this.elRhythmBody?.replaceChildren(), this.elSvgGrid?.remove(), this.elSvgGrid = null, this.elLayoutBody = null, this.elRowBody = null, this.elRhythmBody = null, this.currentMedia = null, this.cachedFontSize = null, this.cachedMediaCalc = null;
 	}
+	exportSvg() {
+		return this.cachedMediaCalc ? X(K(this.cachedMediaCalc, this.lastWidth, this.lastHeight), this.lastWidth, this.lastHeight, q()) : null;
+	}
+	exportPng() {
+		if (!this.cachedMediaCalc) return Promise.resolve(null);
+		let e = K(this.cachedMediaCalc, this.lastWidth, this.lastHeight), t = document.createElement("canvas");
+		t.width = this.lastWidth, t.height = this.lastHeight;
+		let n = t.getContext("2d");
+		return n ? (Y(n, e, this.lastWidth, this.lastHeight, q()), new Promise((e) => t.toBlob((t) => e(t), "image/png"))) : Promise.resolve(null);
+	}
 	syncSvgElements(e, t, n, r) {
 		let i = e.children, a = Math.min(i.length, t);
 		for (let e = 0; e < a; e++) r(i[e], e, !1);
 		let o = document.createDocumentFragment();
 		for (let e = i.length; e < t; e++) {
-			let t = document.createElementNS(de, n);
+			let t = document.createElementNS(le, n);
 			r(t, e, !0), o.appendChild(t);
 		}
 		o.childNodes.length > 0 && e.appendChild(o);
@@ -546,10 +587,10 @@ var Q = class {
 			e && (e.innerHTML = this.model.elem.wrapper.svgHtml), this.elSvgGrid = document.getElementById("tg_grid"), this.elLayoutBody = document.getElementById("tg_layout__body"), this.elRowBody = document.getElementById("tg_row__body"), this.elRhythmBody = document.getElementById("tg_rhythm__body"), this.model.wrapperHeight(), this.visibility(), this.utils.insertStyleElem(this.model.config.styleBase), this.currentMedia = this.model.currentMedia, this.render("resize");
 		} else if (e === "resize") {
 			if (!this.currentMedia) return;
-			this.cachedFontSize === null && (this.cachedFontSize = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, "html")), this.cachedMediaCalc === null && (this.cachedMediaCalc = q(this.currentMedia, this.cachedFontSize));
+			this.cachedFontSize === null && (this.cachedFontSize = this.utils.convertComputedFontSize(this.currentMedia.contents.fontSize, "html")), this.cachedMediaCalc === null && (this.cachedMediaCalc = U(this.currentMedia, this.cachedFontSize));
 			let e = this.cachedMediaCalc, t = this.model.width(), n = this.utils.height();
-			this.model.wrapperHeight(n), this.utils.setSvgSizes(this.elSvgGrid, t, n);
-			let r = X(e, t, n);
+			this.lastWidth = t, this.lastHeight = n, this.model.wrapperHeight(n), this.utils.setSvgSizes(this.elSvgGrid, t, n);
+			let r = K(e, t, n);
 			this.rhythm(r.rhythmLines), this.row(r.rows), this.layout(r.columns), this.base(), this.unit();
 		} else if (e === "change") this.unit();
 		else if (e === "media") {
@@ -600,7 +641,7 @@ function $(e, t) {
 		rowGutter: n.grids.row.gutter[t] ?? 1
 	};
 }
-function pe(e, t, n, r) {
+function de(e, t, n, r) {
 	let i = r ?? window.lil?.GUI;
 	if (!i) return null;
 	let a = e.currentMediaIndex, o = $(e, a), s = () => {
@@ -611,12 +652,24 @@ function pe(e, t, n, r) {
 	}, c = new i({ title: "typegrid" });
 	c.domElement.style.zIndex = "99901";
 	let l = c.addFolder("Contents"), u = c.addFolder("Column"), d = c.addFolder("Row");
-	if (l.add(o, "fontSize").min(8).max(40).step(1).name("font-size (px)").onChange(s), l.add(o, "lineHeight").min(1).max(3).step(.025).name("line-height").onChange(s), l.add(o, "contentGutter").min(0).max(20).step(.25).name("side gutter (rem)").onChange(s), u.add(o, "columnNum").min(1).max(24).step(1).name("columns").onChange(s), u.add(o, "columnGutter").min(0).max(10).step(.25).name("gutter (rem)").onChange(s), d.add(o, "rowHeight").min(1).max(20).step(.125).name("height (rem)").onChange(s), d.add(o, "rowGutter").min(0).max(10).step(.125).name("gutter (rem)").onChange(s), c.add({ exportJson() {
-		let t = JSON.parse(JSON.stringify(e.user)), n = a;
-		t.media.contents.fontSize[n] = o.fontSize, t.media.contents.lineHeight[n] = o.lineHeight, t.media.contents.gutter[n] = o.contentGutter, t.media.grids.column.num[n] = o.columnNum, t.media.grids.column.gutter[n] = o.columnGutter, t.media.grids.row.height[n] = o.rowHeight, t.media.grids.row.gutter[n] = o.rowGutter;
-		let r = new Blob([JSON.stringify(t, null, 4)], { type: "application/json" }), i = URL.createObjectURL(r), s = document.createElement("a");
-		s.href = i, s.download = "typegrid.json", document.body.appendChild(s), s.click(), document.body.removeChild(s), URL.revokeObjectURL(i);
-	} }, "exportJson").name("Export JSON"), n) {
+	l.add(o, "fontSize").min(8).max(40).step(1).name("font-size (px)").onChange(s), l.add(o, "lineHeight").min(1).max(3).step(.025).name("line-height").onChange(s), l.add(o, "contentGutter").min(0).max(20).step(.25).name("side gutter (rem)").onChange(s), u.add(o, "columnNum").min(1).max(24).step(1).name("columns").onChange(s), u.add(o, "columnGutter").min(0).max(10).step(.25).name("gutter (rem)").onChange(s), d.add(o, "rowHeight").min(1).max(20).step(.125).name("height (rem)").onChange(s), d.add(o, "rowGutter").min(0).max(10).step(.125).name("gutter (rem)").onChange(s);
+	let f = {
+		exportJson() {
+			let t = JSON.parse(JSON.stringify(e.user)), n = a;
+			t.media.contents.fontSize[n] = o.fontSize, t.media.contents.lineHeight[n] = o.lineHeight, t.media.contents.gutter[n] = o.contentGutter, t.media.grids.column.num[n] = o.columnNum, t.media.grids.column.gutter[n] = o.columnGutter, t.media.grids.row.height[n] = o.rowHeight, t.media.grids.row.gutter[n] = o.rowGutter;
+			let r = new Blob([JSON.stringify(t, null, 4)], { type: "application/json" }), i = URL.createObjectURL(r), s = document.createElement("a");
+			s.href = i, s.download = "typegrid.json", document.body.appendChild(s), s.click(), document.body.removeChild(s), URL.revokeObjectURL(i);
+		},
+		exportSvg() {
+			let e = t.current.exportSvg();
+			e && Z(new Blob([e], { type: "image/svg+xml" }), "typegrid.svg");
+		},
+		async exportPng() {
+			let e = await t.current.exportPng();
+			e && Z(e, "typegrid.png");
+		}
+	};
+	if (c.add(f, "exportJson").name("Export JSON"), c.add(f, "exportSvg").name("Export SVG"), c.add(f, "exportPng").name("Export PNG"), n) {
 		let e = { mode: "canvas" };
 		c.add(e, "mode", ["canvas", "svg"]).name("renderer").onChange(() => {
 			n(e.mode);
@@ -633,13 +686,13 @@ function pe(e, t, n, r) {
 }
 //#endregion
 //#region src/controller.ts
-var me = class {
+var fe = class {
 	constructor(e, t, n) {
 		this.unKeyBinds = () => {}, this.gui = null, this.utils = e, this.model = t, this.guiConstructor = n, this.activeRenderer = new Q(t), this.rendererRef = { current: this.activeRenderer }, this.unlistenMedia = this.setupMedia(), this.uncheckWindow = this.setupResize(), this.init();
 	}
 	init() {
 		let e = () => {
-			this.activeRenderer.init(), this.unKeyBinds = this.utils.keyBinds(this.model), this.gui = pe(this.model, this.rendererRef, (e) => {
+			this.activeRenderer.init(), this.unKeyBinds = this.utils.keyBinds(this.model), this.gui = de(this.model, this.rendererRef, (e) => {
 				this.setRenderer(e);
 			}, this.guiConstructor);
 		};
@@ -655,9 +708,15 @@ var me = class {
 			this.activeRenderer.resize();
 		});
 	}
+	exportSvg() {
+		return this.activeRenderer.exportSvg();
+	}
+	exportPng() {
+		return this.activeRenderer.exportPng();
+	}
 	setRenderer(e) {
 		this.activeRenderer.destroy();
-		let t = e === "canvas" ? new Q(this.model) : new fe(this.utils, this.model);
+		let t = e === "canvas" ? new Q(this.model) : new ue(this.utils, this.model);
 		t.init(), this.activeRenderer = t, this.rendererRef.current = t;
 	}
 	destroy() {
@@ -666,11 +725,11 @@ var me = class {
 };
 //#endregion
 //#region src/main.ts
-function he(e) {
+function pe(e) {
 	let t = null, n = null, r = {
 		init() {
-			n = new AbortController(), G((r) => {
-				n = null, t = new me(h, new K(r), e?.gui);
+			n = new AbortController(), V((r) => {
+				n = null, t = new fe(ee, new H(r), e?.gui);
 			}, n.signal);
 		},
 		destroy() {
@@ -678,9 +737,15 @@ function he(e) {
 		},
 		setRenderer(e) {
 			t?.setRenderer(e);
+		},
+		exportSvg() {
+			return t?.exportSvg() ?? null;
+		},
+		exportPng() {
+			return t?.exportPng() ?? Promise.resolve(null);
 		}
 	};
 	return r.init(), r;
 }
 //#endregion
-export { he as typegrid };
+export { pe as typegrid };

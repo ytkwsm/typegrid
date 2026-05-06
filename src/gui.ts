@@ -16,6 +16,7 @@
 import type { TypegridModel } from './model.js';
 import type { Renderer, RendererMode } from './renderer/types.js';
 import type { TypegridConfig } from './types/typegrid.d.ts';
+import { triggerDownload } from './renderer/download.js';
 
 // lil-gui の最小限インターフェース（lil-gui を devDependencies に追加しない）
 interface LilGuiController {
@@ -158,8 +159,20 @@ export function tryInitGui(
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     },
+    exportSvg(): void {
+      const svg = rendererRef.current.exportSvg();
+      if (!svg) return;
+      triggerDownload(new Blob([svg], { type: 'image/svg+xml' }), 'typegrid.svg');
+    },
+    async exportPng(): Promise<void> {
+      const blob = await rendererRef.current.exportPng();
+      if (!blob) return;
+      triggerDownload(blob, 'typegrid.png');
+    },
   };
   gui.add(exportActions, 'exportJson').name('Export JSON');
+  gui.add(exportActions, 'exportSvg').name('Export SVG');
+  gui.add(exportActions, 'exportPng').name('Export PNG');
 
   // レンダラー切替トグル（Canvas/SVG の切替）
   if (onSetRenderer) {

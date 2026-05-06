@@ -7,6 +7,8 @@ export interface Renderer {
   mediaChange(index: number): void;
   invalidateMediaCalc(): void;
   destroy(): void;
+  exportSvg(): string | null;
+  exportPng(): Promise<Blob | null>;
 }
 
 export type RendererMode = 'canvas' | 'svg';

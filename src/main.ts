@@ -24,6 +24,8 @@ export interface TypegridAPI {
   init: () => void;
   destroy: () => void;
   setRenderer: (mode: RendererMode) => void;
+  exportSvg: () => string | null;
+  exportPng: () => Promise<Blob | null>;
 }
 
 /**
@@ -78,6 +80,12 @@ export function typegrid(options?: TypegridOptions): TypegridAPI {
     },
     setRenderer(mode) {
       controller?.setRenderer(mode);
+    },
+    exportSvg() {
+      return controller?.exportSvg() ?? null;
+    },
+    exportPng() {
+      return controller?.exportPng() ?? Promise.resolve(null);
     },
   };
 

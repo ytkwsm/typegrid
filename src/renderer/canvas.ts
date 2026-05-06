@@ -15,21 +15,11 @@ import {
   buildMediaCalcCache,
   computeGridLayout,
 } from '../core/calc.js';
-
-const COLUMN_FILL_ALPHA   = 0.125;
-const COLUMN_STROKE_ALPHA = 0.5;
-const ROW_FILL_ALPHA      = 0.125;
-const ROW_STROKE_ALPHA    = 0.5;
-const RHYTHM_STROKE_ALPHA = 0.75;
-const RHYTHM_LINE_WIDTH   = 0.5;
-
-function hexToRgba(hex: string, alpha: number): string {
-  const h = hex.replace('#', '');
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
+import {
+  buildSvgString,
+  drawGridToCanvas,
+  readGridColors,
+} from './download.js';
 
 export class TypegridCanvasRenderer implements Renderer {
   currentMedia: DeviceSnapshot | null = null;
@@ -38,6 +28,8 @@ export class TypegridCanvasRenderer implements Renderer {
   private ctx: CanvasRenderingContext2D | null = null;
   private cachedFontSize: number | null = null;
   private cachedMediaCalc: MediaCalcCache | null = null;
+  private lastWidth:  number = 0;
+  private lastHeight: number = 0;
 
   constructor(model: TypegridModel) {
     this.model = model;
@@ -73,6 +65,8 @@ export class TypegridCanvasRenderer implements Renderer {
     }
     const width  = this.model.width();
     const height = utils.height();
+    this.lastWidth  = width;
+    this.lastHeight = height;
     this.model.wrapperHeight(height);
     this.canvas.width  = width;
     this.canvas.height = height;
@@ -101,44 +95,22 @@ export class TypegridCanvasRenderer implements Renderer {
     this.cachedMediaCalc = null;
   }
 
+  exportSvg(): string | null {
+    if (!this.cachedMediaCalc) return null;
+    const layout = computeGridLayout(this.cachedMediaCalc, this.lastWidth, this.lastHeight);
+    return buildSvgString(layout, this.lastWidth, this.lastHeight, readGridColors());
+  }
+
+  exportPng(): Promise<Blob | null> {
+    // 既存の canvas を直接使用するため再描画不要
+    if (!this.canvas) return Promise.resolve(null);
+    return new Promise(resolve => {
+      this.canvas!.toBlob(blob => resolve(blob), 'image/png');
+    });
+  }
+
   private draw(layout: GridLayout, width: number, height: number): void {
-    const ctx = this.ctx!;
-    ctx.clearRect(0, 0, width, height);
-
-    const style       = getComputedStyle(document.documentElement);
-    const colColor    = style.getPropertyValue('--tg-color-column').trim()  || '#ff0000';
-    const rowColor    = style.getPropertyValue('--tg-color-row').trim()     || '#ff0000';
-    const rhythmColor = style.getPropertyValue('--tg-color-rhythm').trim()  || '#999999';
-
-    // カラム（fill → stroke）
-    ctx.fillStyle = hexToRgba(colColor, COLUMN_FILL_ALPHA);
-    for (const col of layout.columns) {
-      ctx.fillRect(col.x, 0, col.width, height);
-    }
-    ctx.strokeStyle = hexToRgba(colColor, COLUMN_STROKE_ALPHA);
-    ctx.lineWidth = 1;
-    for (const col of layout.columns) {
-      ctx.strokeRect(col.x, 0, col.width, height);
-    }
-
-    // 行グリッド（fill → stroke）
-    ctx.fillStyle = hexToRgba(rowColor, ROW_FILL_ALPHA);
-    for (const row of layout.rows) {
-      ctx.fillRect(row.x, row.y, row.width, row.height);
-    }
-    ctx.strokeStyle = hexToRgba(rowColor, ROW_STROKE_ALPHA);
-    for (const row of layout.rows) {
-      ctx.strokeRect(row.x, row.y, row.width, row.height);
-    }
-
-    // リズムライン（一括 beginPath → stroke）
-    ctx.strokeStyle = hexToRgba(rhythmColor, RHYTHM_STROKE_ALPHA);
-    ctx.lineWidth   = RHYTHM_LINE_WIDTH;
-    ctx.beginPath();
-    for (const line of layout.rhythmLines) {
-      ctx.moveTo(line.x1, line.y1);
-      ctx.lineTo(line.x2, line.y2);
-    }
-    ctx.stroke();
+    if (!this.ctx) return;
+    drawGridToCanvas(this.ctx, layout, width, height, readGridColors());
   }
 }
