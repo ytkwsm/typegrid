@@ -14,7 +14,7 @@
  */
 
 import type { TypegridModel } from './model.js';
-import type { TypegridView } from './view.js';
+import type { Renderer, RendererMode } from './renderer/types.js';
 import type { TypegridConfig } from './types/typegrid.d.ts';
 
 // lil-gui の最小限インターフェース（lil-gui を devDependencies に追加しない）
@@ -87,12 +87,15 @@ export interface TypegridGui {
  * lil-gui が使用可能なら GUI パネルを生成して返す。
  * いずれの方法でも lil-gui が存在しない場合は null を返す（GUI なしで通常動作する）。
  *
+ * @param rendererRef - 現在アクティブなレンダラーへの参照（切替後も最新を指す）
+ * @param onSetRenderer - レンダラートグル変更時のコールバック
  * @param guiConstructor - 方法B（JS import）で渡す GUI コンストラクタ。
  *                         省略時は window.lil.GUI（方法A）を自動検出する。
  */
 export function tryInitGui(
   model: TypegridModel,
-  view: TypegridView,
+  rendererRef: { current: Renderer },
+  onSetRenderer?: (mode: RendererMode) => void,
   guiConstructor?: GuiConstructor,
 ): TypegridGui | null {
   const GUI = guiConstructor ?? window.lil?.GUI;
@@ -102,8 +105,9 @@ export function tryInitGui(
   const params = resolveParams(model, currentIndex);
 
   const applyParams = (): void => {
-    if (!view.currentMedia) return;
-    const cm = view.currentMedia;
+    const renderer = rendererRef.current;
+    if (!renderer.currentMedia) return;
+    const cm = renderer.currentMedia;
     cm.contents.fontSize   = params.fontSize;
     cm.contents.lineHeight = params.lineHeight;
     cm.contents.gutter     = params.contentGutter;
@@ -111,8 +115,8 @@ export function tryInitGui(
     cm.grids.column.gutter = params.columnGutter;
     cm.grids.row.height    = params.rowHeight;
     cm.grids.row.gutter    = params.rowGutter;
-    view.invalidateMediaCalc();
-    view.render('resize');
+    renderer.invalidateMediaCalc();
+    renderer.resize();
   };
 
   const gui = new GUI({ title: 'typegrid' });
@@ -156,6 +160,14 @@ export function tryInitGui(
     },
   };
   gui.add(exportActions, 'exportJson').name('Export JSON');
+
+  // レンダラー切替トグル（Canvas/SVG の切替）
+  if (onSetRenderer) {
+    const rendererToggle = { mode: 'canvas' as RendererMode };
+    gui.add(rendererToggle, 'mode', ['canvas', 'svg'])
+      .name('renderer')
+      .onChange(() => { onSetRenderer(rendererToggle.mode); });
+  }
 
   return {
     updateMedia(index: number): void {

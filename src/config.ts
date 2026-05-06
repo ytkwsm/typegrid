@@ -154,5 +154,26 @@ export const elem = {
       "<div id='tg_settings'></div>",
       "<div id='tg_gui'><div id='tg_gui__body'></div></div>",
     ].join(''),
+
+    // レンダラー共通の #tg_all 内構造（#tg_wrapper はレンダラーが個別に中身を差し込む）
+    containerHtml: [
+      "<div id='tg_wrapper'></div>",
+      "<div id='tg_ruler'><div id='tg_ruler__body'></div></div>",
+      "<div id='tg_settings'></div>",
+      "<div id='tg_gui'><div id='tg_gui__body'></div></div>",
+    ].join(''),
+
+    // SVG レンダラーが #tg_wrapper に差し込む SVG 構造
+    svgHtml: [
+      "<svg id='tg_grid'>",
+      "<g id='tg_base'><g id='tg_base__body'></g></g>",
+      "<g id='tg_unit'><g id='tg_unit__body'></g></g>",
+      "<g id='tg_sizes'><g id='tg_sizes__body'></g></g>",
+      "<g id='tg_chars'><g id='tg_chars__body'></g></g>",
+      "<g id='tg_layout'><g id='tg_layout__body'></g></g>",
+      "<g id='tg_row'><g id='tg_row__body'></g></g>",
+      "<g id='tg_rhythm'><g id='tg_rhythm__body'></g></g>",
+      '</svg>',
+    ].join(''),
   },
 };

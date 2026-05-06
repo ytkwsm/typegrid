@@ -11,7 +11,6 @@
 
 import type { TypegridConfig } from './types/typegrid.d.ts';
 import type { TypegridModel } from './model.js';
-import type { TypegridView } from './view.js';
 import * as config from './config.js';
 
 // -----------------------------------------------------------------------
@@ -174,10 +173,26 @@ export function reset(resetElem: Element): void {
 }
 
 /**
+ * #tg_all が存在しない場合のみ作成する。
+ * レンダラー切替時の二重生成を防ぐ。
+ */
+export function ensureContainer(containerHtml: string): void {
+  if (document.getElementById('tg_all')) return;
+  const root = document.createElement('div');
+  root.setAttribute('id', 'tg_all');
+  root.setAttribute('role', 'presentation');
+  root.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(root);
+  root.innerHTML = containerHtml;
+}
+
+/**
  * #tg_all 内に <style id="tg_style"> を挿入する。
+ * レンダラー切替時の二重挿入を防ぐため、既に存在する場合は何もしない。
  * @param cssText - 挿入するCSSテキスト
  */
 export function insertStyleElem(cssText: string): void {
+  if (document.getElementById('tg_style')) return;
   const style = document.createElement('style');
   const target = document.getElementById('tg_all');
   if (!target) return;
@@ -213,7 +228,6 @@ export function wrapper(htmlSet: string, model: TypegridModel): void {
  */
 export function listenMediaQueries(
   model: TypegridModel,
-  _view: TypegridView,
   callBack: (mediaIndex: number) => void,
 ): () => void {
   const myBreakPoints = model.user.media.contents.breakPoints.width.min;
@@ -277,7 +291,6 @@ export function listenMediaQueries(
  */
 export function checkWindowSize(
   model: TypegridModel,
-  _view: TypegridView,
   callBack: () => void,
 ): () => void {
   let rafId = -1;
@@ -305,7 +318,7 @@ export function checkWindowSize(
  * p キー: fixed/absolute 切替
  * @returns リスナー解除用の unKeyBinds 関数
  */
-export function keyBinds(model: TypegridModel, _view: TypegridView): () => void {
+export function keyBinds(model: TypegridModel): () => void {
   let displayStatus = model.visibility;
   let fixedStatus = model.fixed;
   const all = document.getElementById('tg_all');
