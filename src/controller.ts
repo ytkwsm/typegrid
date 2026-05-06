@@ -87,6 +87,14 @@ export class TypegridController {
     return this.utils.checkWindowSize(this.model, renderResize);
   }
 
+  exportSvg(): string | null {
+    return this.activeRenderer.exportSvg();
+  }
+
+  exportPng(): Promise<Blob | null> {
+    return this.activeRenderer.exportPng();
+  }
+
   /** レンダラーを切り替える。既存レンダラーを破棄してから新しいレンダラーを初期化する */
   setRenderer(mode: RendererMode): void {
     this.activeRenderer.destroy();

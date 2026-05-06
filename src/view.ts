@@ -23,6 +23,7 @@ import {
   buildMediaCalcCache,
   computeGridLayout,
 } from './core/calc.js';
+import { buildSvgString, drawGridToCanvas, readGridColors } from './renderer/download.js';
 
 type RenderMode = 'init' | 'resize' | 'change' | 'media';
 
@@ -34,6 +35,8 @@ export class TypegridView implements Renderer {
   currentMedia: DeviceSnapshot | null = null;
   private cachedFontSize: number | null = null;
   private cachedMediaCalc: MediaCalcCache | null = null;
+  private lastWidth:  number = 0;
+  private lastHeight: number = 0;
 
   /** render('init') 後にキャッシュするDOM要素（毎フレームの getElementById を省略） */
   private elSvgGrid:    Element | null = null;
@@ -62,6 +65,25 @@ export class TypegridView implements Renderer {
     this.currentMedia    = null;
     this.cachedFontSize  = null;
     this.cachedMediaCalc = null;
+  }
+
+  exportSvg(): string | null {
+    if (!this.cachedMediaCalc) return null;
+    const layout = computeGridLayout(this.cachedMediaCalc, this.lastWidth, this.lastHeight);
+    return buildSvgString(layout, this.lastWidth, this.lastHeight, readGridColors());
+  }
+
+  exportPng(): Promise<Blob | null> {
+    if (!this.cachedMediaCalc) return Promise.resolve(null);
+    const layout  = computeGridLayout(this.cachedMediaCalc, this.lastWidth, this.lastHeight);
+    // DOM に追加しないオフスクリーン canvas を使用
+    const canvas  = document.createElement('canvas');
+    canvas.width  = this.lastWidth;
+    canvas.height = this.lastHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return Promise.resolve(null);
+    drawGridToCanvas(ctx, layout, this.lastWidth, this.lastHeight, readGridColors());
+    return new Promise(resolve => canvas.toBlob(blob => resolve(blob), 'image/png'));
   }
 
   /**
@@ -135,6 +157,8 @@ export class TypegridView implements Renderer {
       const calc         = this.cachedMediaCalc;
       const renderWidth  = this.model.width();
       const renderHeight = this.utils.height();
+      this.lastWidth     = renderWidth;
+      this.lastHeight    = renderHeight;
       this.model.wrapperHeight(renderHeight);
       this.utils.setSvgSizes(this.elSvgGrid, renderWidth, renderHeight);
       const gridLayout = computeGridLayout(calc, renderWidth, renderHeight);
