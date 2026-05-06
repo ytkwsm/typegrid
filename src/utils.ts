@@ -9,23 +9,11 @@
  * - デバッグ用 console.log を削除し、エラー・警告のみ残す。
  */
 
-import type { TypegridConfig } from './types/typegrid.d.ts';
 import type { TypegridModel } from './model.js';
-import * as config from './config.js';
 
 // -----------------------------------------------------------------------
-// model 関連
+// DOM 計測
 // -----------------------------------------------------------------------
-
-/**
- * config に保存された JSON を取得する。
- * 旧実装との互換のために残しているが、TypegridModel は直接 userConfig を受け取るため
- * 新規コードでの使用は非推奨。
- * @deprecated TypegridModel コンストラクタに TypegridConfig を直接渡すこと。
- */
-export function getJSON(item: string): TypegridConfig | undefined {
-  return (config as unknown as Record<string, TypegridConfig>)[item];
-}
 
 /** スクロールバーの幅（px）を計算して返す */
 export function calcScrollbarWidth(): number {
@@ -199,18 +187,6 @@ export function insertStyleElem(cssText: string): void {
   style.setAttribute('id', 'tg_style');
   style.textContent = cssText;
   target.appendChild(style);
-}
-
-/** #tg_all ルートdivを body末尾に追加し、innerHTML を設定する */
-export function wrapper(htmlSet: string, model: TypegridModel): void {
-  const root = document.createElement('div');
-  const htmlBody = document.body;
-  root.setAttribute('id', 'tg_all');
-  root.setAttribute('role', 'presentation');
-  root.setAttribute('aria-hidden', 'true');
-  htmlBody.appendChild(root);
-  root.innerHTML = htmlSet;
-  void model; // 将来的な拡張用（サイズ参照など）
 }
 
 // -----------------------------------------------------------------------
