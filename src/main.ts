@@ -8,20 +8,22 @@
  * - named export に変更（import { typegrid } from 'typegrid.js' で利用可能）
  * - TypegridModel のコンストラクタを userConfig を受け取る形に変更したため、
  *   JSON取得後に model を生成するフローを維持
+ * - TypegridView の直接生成を廃止し、Controller がレンダラーを管理する構造に変更
  */
 
 import * as utils  from './utils.js';
 import { getJSON } from './user.js';
 import { TypegridModel }      from './model.js';
-import { TypegridView }       from './view.js';
 import { TypegridController } from './controller.js';
 import type { GuiConstructor } from './gui.js';
 import type { TypegridConfig } from './types/typegrid.d.ts';
+import type { RendererMode } from './renderer/types.js';
 
 /** typegrid のパブリックAPI */
 export interface TypegridAPI {
   init: () => void;
   destroy: () => void;
+  setRenderer: (mode: RendererMode) => void;
 }
 
 /**
@@ -63,8 +65,7 @@ export function typegrid(options?: TypegridOptions): TypegridAPI {
       getJSON((json: TypegridConfig) => {
         fetchAbort = null;
         const model = new TypegridModel(json);
-        const view  = new TypegridView(utils, model);
-        controller  = new TypegridController(utils, model, view, options?.gui);
+        controller  = new TypegridController(utils, model, options?.gui);
       }, fetchAbort.signal);
     },
     destroy() {
@@ -74,6 +75,9 @@ export function typegrid(options?: TypegridOptions): TypegridAPI {
         controller.destroy();
         controller = null;
       }
+    },
+    setRenderer(mode) {
+      controller?.setRenderer(mode);
     },
   };
 

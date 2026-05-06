@@ -14,6 +14,7 @@
 import * as utils from './utils.js';
 import type { TypegridModel } from './model.js';
 import type { DeviceSnapshot } from './types/typegrid.d.ts';
+import type { Renderer } from './renderer/types.js';
 import {
   type MediaCalcCache,
   type ColumnRect,
@@ -27,7 +28,7 @@ type RenderMode = 'init' | 'resize' | 'change' | 'media';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-export class TypegridView {
+export class TypegridView implements Renderer {
   readonly utils: typeof utils;
   readonly model: TypegridModel;
   currentMedia: DeviceSnapshot | null = null;
@@ -45,12 +46,22 @@ export class TypegridView {
     this.model = model;
   }
 
-  wrapper(htmlSet: string, model: TypegridModel): void {
-    this.utils.wrapper(htmlSet, model);
-  }
+  init(): void  { this.render('init'); }
+  resize(): void { this.render('resize'); }
+  mediaChange(index: number): void { this.render('media', index); }
 
-  reset(resetElem: Element): void {
-    this.utils.reset(resetElem);
+  destroy(): void {
+    this.elLayoutBody?.replaceChildren();
+    this.elRowBody?.replaceChildren();
+    this.elRhythmBody?.replaceChildren();
+    this.elSvgGrid?.remove();
+    this.elSvgGrid    = null;
+    this.elLayoutBody = null;
+    this.elRowBody    = null;
+    this.elRhythmBody = null;
+    this.currentMedia    = null;
+    this.cachedFontSize  = null;
+    this.cachedMediaCalc = null;
   }
 
   /**
@@ -100,7 +111,9 @@ export class TypegridView {
 
   render(flg: RenderMode, param1?: number): void {
     if (flg === 'init') {
-      this.wrapper(this.model.elem.wrapper.html, this.model);
+      this.utils.ensureContainer(this.model.elem.wrapper.containerHtml);
+      const tgWrapper = document.getElementById('tg_wrapper');
+      if (tgWrapper) tgWrapper.innerHTML = this.model.elem.wrapper.svgHtml;
       this.elSvgGrid    = document.getElementById('tg_grid');
       this.elLayoutBody = document.getElementById('tg_layout__body');
       this.elRowBody    = document.getElementById('tg_row__body');
@@ -108,7 +121,6 @@ export class TypegridView {
       this.model.wrapperHeight();
       this.visibility();
       this.utils.insertStyleElem(this.model.config.styleBase);
-      this.utils.setSvgSizes(this.elSvgGrid, this.model.width(), this.utils.height());
       // listenMediaQueries がセットした currentMedia を取得
       this.currentMedia = this.model.currentMedia;
       this.render('resize');
