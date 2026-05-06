@@ -208,13 +208,13 @@ function A(e, t) {
 	};
 }
 function ie(e, t) {
-	let n = -1, r = new ResizeObserver(() => {
+	let n = -1, r = () => {
 		n === -1 && (n = requestAnimationFrame(() => {
 			e.debug.count.resize += 1, t(), n = -1;
 		}));
-	});
-	return r.observe(document.documentElement), function() {
-		n !== -1 && cancelAnimationFrame(n), r.disconnect();
+	}, i = new ResizeObserver(r);
+	return i.observe(document.documentElement), window.addEventListener("resize", r), function() {
+		n !== -1 && cancelAnimationFrame(n), i.disconnect(), window.removeEventListener("resize", r);
 	};
 }
 function ae(e) {

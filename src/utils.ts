@@ -295,20 +295,26 @@ export function checkWindowSize(
 ): () => void {
   let rafId = -1;
 
-  const observer = new ResizeObserver(() => {
+  const trigger = (): void => {
     if (rafId !== -1) return;
     rafId = requestAnimationFrame(() => {
       model.debug.count.resize += 1;
       callBack();
       rafId = -1;
     });
-  });
+  };
 
+  // コンテンツ高さの変化を検出
+  const observer = new ResizeObserver(trigger);
   observer.observe(document.documentElement);
+
+  // ビューポートの縦幅変化（コンテンツ高さが変わらない場合に ResizeObserver が発火しない）
+  window.addEventListener('resize', trigger);
 
   return function uncheckWindowSize(): void {
     if (rafId !== -1) cancelAnimationFrame(rafId);
     observer.disconnect();
+    window.removeEventListener('resize', trigger);
   };
 }
 
